@@ -29,7 +29,7 @@ export default function ProfilePage() {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
 
-  const { data: profile, isLoading } = useQuery<UserProfileData>({
+  const { data: profile, isLoading, error } = useQuery<UserProfileData>({
     queryKey: ['profile', user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
@@ -39,7 +39,10 @@ export default function ProfilePage() {
         .eq('id', user!.id)
         .single();
 
-      if (userError) throw userError;
+      if (userError) {
+        console.error('Error fetching user profile:', userError);
+        throw userError;
+      }
 
       const { data: experience, error: expError } = await supabase
         .from('user_experience')
@@ -47,7 +50,10 @@ export default function ProfilePage() {
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
 
-      if (expError) throw expError;
+      if (expError) {
+        console.error('Error fetching user experience:', expError);
+        throw expError;
+      }
 
       return { ...userData, experience };
     },
@@ -76,6 +82,27 @@ export default function ProfilePage() {
         <div className="text-center space-y-4">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4 p-4">
+          <h2 className="text-2xl font-semibold text-destructive">Error Loading Profile</h2>
+          <p className="text-muted-foreground">
+            We couldn't load your profile. This may be because your account setup is incomplete.
+          </p>
+          <div className="flex gap-2 justify-center">
+            <Button onClick={() => window.location.reload()} data-testid="button-retry">
+              Retry
+            </Button>
+            <Button variant="outline" onClick={handleSignOut} data-testid="button-signout-error">
+              Sign Out
+            </Button>
+          </div>
         </div>
       </div>
     );

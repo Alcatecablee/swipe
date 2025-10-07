@@ -26,7 +26,7 @@ export default function ApplicationsPage() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
 
-  const { data: applications, isLoading } = useQuery<ApplicationWithJob[]>({
+  const { data: applications, isLoading, error } = useQuery<ApplicationWithJob[]>({
     queryKey: ['applications', user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
@@ -45,7 +45,10 @@ export default function ApplicationsPage() {
         .eq('user_id', user!.id)
         .order('applied_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching applications:', error);
+        throw error;
+      }
       return data as ApplicationWithJob[];
     },
   });
@@ -56,6 +59,22 @@ export default function ApplicationsPage() {
         <div className="text-center space-y-4">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="text-muted-foreground">Loading applications...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4 p-4">
+          <h2 className="text-2xl font-semibold text-destructive">Error Loading Applications</h2>
+          <p className="text-muted-foreground">
+            We couldn't load your applications. Please try again later.
+          </p>
+          <Button onClick={() => window.location.reload()} data-testid="button-retry">
+            Retry
+          </Button>
         </div>
       </div>
     );

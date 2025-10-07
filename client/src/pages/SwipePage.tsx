@@ -21,15 +21,25 @@ export default function SwipePage() {
     "left" | "right" | null
   >(null);
 
-  const { data: jobs, isLoading } = useQuery<Job[]>({
+  const { data: jobs, isLoading, error: jobsError } = useQuery<Job[]>({
     queryKey: ['jobs-swipe', user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
       // Get already swiped job IDs
-      const { data: swipes } = await supabase
+      const { data: swipes, error: swipesError } = await supabase
         .from('swipes')
         .select('job_id')
         .eq('user_id', user!.id);
+
+      if (swipesError) {
+        console.error('Error fetching swipes:', swipesError);
+        toast({
+          variant: "destructive",
+          title: "Error loading your swipes",
+          description: "We couldn't load your previous swipes. Please refresh the page.",
+        });
+        throw swipesError;
+      }
 
       const swipedJobIds = swipes?.map(s => s.job_id) || [];
 
@@ -40,12 +50,20 @@ export default function SwipePage() {
         .eq('is_active', true);
 
       if (swipedJobIds.length > 0) {
-        query = query.not('id', 'in', `(${swipedJobIds.join(',')})`);
+        query = query.not('id', 'in', `(${swipedJobIds.map(id => `"${id}"`).join(',')})`);
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching jobs:', error);
+        toast({
+          variant: "destructive",
+          title: "Error loading jobs",
+          description: "We couldn't load job listings. Please try again.",
+        });
+        throw error;
+      }
+      return data || [];
     },
   });
 
@@ -133,6 +151,22 @@ export default function SwipePage() {
         <div className="text-center space-y-4">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="text-muted-foreground">Loading jobs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (jobsError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4 p-4">
+          <h2 className="text-2xl font-semibold text-destructive">Error Loading Jobs</h2>
+          <p className="text-muted-foreground">
+            We couldn't load job listings. Please refresh the page or try again later.
+          </p>
+          <Button onClick={() => window.location.reload()} data-testid="button-retry">
+            Retry
+          </Button>
         </div>
       </div>
     );
