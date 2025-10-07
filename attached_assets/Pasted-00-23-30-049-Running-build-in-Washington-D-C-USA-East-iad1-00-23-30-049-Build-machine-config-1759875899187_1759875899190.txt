@@ -1,0 +1,50 @@
+00:23:30.049 Running build in Washington, D.C., USA (East) – iad1
+00:23:30.049 Build machine configuration: 2 cores, 8 GB
+00:23:30.063 Cloning github.com/Alcatecablee/swipe (Branch: main, Commit: 70d85bc)
+00:23:30.204 Previous build caches not available
+00:23:30.372 Cloning completed: 307.000ms
+00:23:30.689 Running "vercel build"
+00:23:31.095 Vercel CLI 48.2.4
+00:23:31.696 Installing dependencies...
+00:23:36.292 npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+00:23:36.317 npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+00:23:41.426 
+00:23:41.427 added 508 packages in 9s
+00:23:41.427 
+00:23:41.428 67 packages are looking for funding
+00:23:41.428   run `npm fund` for details
+00:23:41.505 Running "npm run build"
+00:23:41.612 
+00:23:41.613 > rest-express@1.0.0 build
+00:23:41.613 > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+00:23:41.613 
+00:23:41.894 [36mvite v5.4.20 [32mbuilding for production...[36m[39m
+00:23:42.071 transforming...
+00:23:42.324 Browserslist: browsers data (caniuse-lite) is 12 months old. Please run:
+00:23:42.325   npx update-browserslist-db@latest
+00:23:42.325   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+00:23:43.247 
+00:23:43.247 A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+00:23:46.898 [32m✓[39m 2106 modules transformed.
+00:23:47.273 rendering chunks...
+00:23:47.296 computing gzip size...
+00:23:47.341 [2m../dist/public/[22m[32mindex.html                 [39m[1m[2m  0.92 kB[22m[1m[22m[2m │ gzip:   0.50 kB[22m
+00:23:47.342 [2m../dist/public/[22m[2massets/[22m[35mindex-_udW-vTR.css  [39m[1m[2m 72.56 kB[22m[1m[22m[2m │ gzip:  11.68 kB[22m
+00:23:47.342 [2m../dist/public/[22m[2massets/[22m[36mindex-CNU2-OnU.js   [39m[1m[33m517.74 kB[39m[22m[2m │ gzip: 156.29 kB[22m
+00:23:47.343 [32m✓ built in 5.42s[39m
+00:23:47.343 [33m
+00:23:47.343 (!) Some chunks are larger than 500 kB after minification. Consider:
+00:23:47.344 - Using dynamic import() to code-split the application
+00:23:47.344 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+00:23:47.344 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+00:23:47.399 
+00:23:47.399   dist/index.js  11.6kb
+00:23:47.399 
+00:23:47.399 ⚡ Done in 4ms
+00:23:47.470 Build Completed in /vercel/output [16s]
+00:23:47.568 Deploying outputs...
+00:23:50.100 Deployment completed
+00:23:50.978 Creating build cache...
+00:24:04.975 Created build cache: 13.989s
+00:24:04.976 Uploading build cache [80.86 MB]
+00:24:06.611 Build cache uploaded: 1.641s
