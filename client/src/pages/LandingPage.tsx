@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { ArrowRight, Briefcase, Sparkles, Users, Shield, Globe, Quote } from "lucide-react";
 
@@ -5,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { useAuth } from "@/contexts/AuthContext";
 
 const partnerLogos = [
   { name: "Yoco", src: "https://logo.clearbit.com/yoco.com" },
@@ -93,6 +95,13 @@ const testimonials = [
 
 export default function LandingPage() {
   const [, setLocation] = useLocation();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      setLocation("/app");
+    }
+  }, [user, loading, setLocation]);
 
   const handlePrimaryCta = () => setLocation("/signup");
   const handleSecondaryCta = () => setLocation("/login");

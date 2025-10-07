@@ -24,7 +24,7 @@ export default function LoginPage() {
         title: "Welcome back!",
         description: "You've successfully logged in.",
       });
-      setLocation("/");
+      setLocation("/app");
     } catch (error: any) {
       toast({
         variant: "destructive",

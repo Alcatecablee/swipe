@@ -25,7 +25,7 @@ export default function SignupPage() {
         title: "Account created!",
         description: "Welcome to SwipeJob. Let's find you a great opportunity!",
       });
-      setLocation("/");
+      setLocation("/app");
     } catch (error: any) {
       toast({
         variant: "destructive",
