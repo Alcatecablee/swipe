@@ -1,0 +1,64 @@
+What Sorce is & how it works
+
+From their site:
+
+After uploading your resume, you swipe right on jobs you like, left on those you don’t. 
+sorce.jobs
++1
+
+When a user swipes right, their AI agent “navigates to the company’s website and applies on their behalf.” 
+sorce.jobs
+
+They currently list ~1.6 million jobs. 
+sorce.jobs
+
+They claim to serve across the experience spectrum (entry level to senior). 
+sorce.jobs
+
+They’ve tracked “swipes” (7.5 million as of the time on their site) and say they help generate interviews. 
+sorce.jobs
+
+This is a match of two proven patterns:
+
+Swipe / gamified UX (inspired by dating apps) applied to a non-dating domain
+
+Automation / agent doing the “heavy lifting” (i.e. applying for jobs)
+
+Together, it lowers friction (you don’t have to manually search, fill forms, etc.) and adds fun / novelty via the swipe interface.
+
+What’s strong about this idea / what works
+
+What makes Sorce an interesting model and potentially successful:
+
+Low friction & simplicity — applying to jobs is usually tedious; swipe UI lowers the barrier.
+
+Automation adds value — the AI agent handling application forms is a differentiator (if it works reliably).
+
+Broad market — almost everyone at some point looks for a job; the addressable market is large.
+
+Data scale & network effects — the more jobs you list, the more users you attract; the more users you have, the more you can negotiate better access to employers or integrations.
+
+Emotional / psychological appeal — the act of swiping is fun, gives feedback quickly, feels more interactive than browsing job boards.
+
+How you might adapt / localize this for South Africa
+
+There’s a lot of potential to take this concept and fit it to local conditions, doing what “copying” means best — adapting to local constraints, culture, and opportunities. Here are considerations + tweaks:
+
+Challenge / consideration	How to adapt / what to do differently in South Africa
+Job market differences	Many formal sectors, but also a large informal and semi-formal sector. Build support for less formal job listings (contract work, gig work, part time).
+Data / connectivity constraints	Make the app lightweight, offline-friendly components, minimal data usage, caching of job lists for users in lower bandwidth areas.
+Local job boards / employers integration	You’d need relationships with local companies, recruiters, job boards (e.g. CareerJunction, PNET, Indeed SA) so that you have supply of jobs curated locally.
+Application process variation	Some jobs require complicated local requirements (certificates, regulatory forms). The “agent” must handle local CV formats, cover letters, local languages, and validations.
+Trust & legitimacy	Many job scams exist. You’ll need verification, trust signals, vetting of job postings to prevent fraud.
+Payment / monetization	How will you monetize? Options: charging companies for access to candidates, premium features for job seekers (e.g. prioritized applications, analytics), advertisement, or recruitment service commissions.
+Local features / differentiation	You might add local languages support (Afrikaans, isiZulu, etc.), features like stipend negotiation, transport support, linking to skills training, local mentorship / referrals.
+
+Possible variants or extensions:
+
+A “gig-work swipe” app for short tasks, part-time shifts, or freelance local work (delivery, tutoring, events)
+
+Swipe interface for internships or student roles in major cities
+
+A version for specific industries (tech, hospitality, retail) with domain-specific features
+
+A “reverse swipe” for companies: companies swipe on candidate profiles, match, then interview pipeline
