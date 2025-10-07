@@ -1,0 +1,39 @@
+client:495 [vite] connecting...
+client:618 [vite] connected.
+chunk-276SZO74.js?v=f2d860d5:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+chunk-276SZO74.js?v=f2d860d5:521 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://6e9b68d0-f69e-47d8-a3e0-dea3b07ae611-00-3qbd4rtnpyqhh.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f2d860d5:337:18
+    at div
+    at header
+    at MarketingHeader (https://6e9b68d0-f69e-47d8-a3e0-dea3b07ae611-00-3qbd4rtnpyqhh.spock.replit.dev/src/components/marketing/MarketingHeader.tsx:36:35)
+    at div
+    at LandingPage (https://6e9b68d0-f69e-47d8-a3e0-dea3b07ae611-00-3qbd4rtnpyqhh.spock.replit.dev/src/pages/LandingPage.tsx:100:27)
+    at Route (https://6e9b68d0-f69e-47d8-a3e0-dea3b07ae611-00-3qbd4rtnpyqhh.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f2d860d5:323:16)
+    at Switch (https://6e9b68d0-f69e-47d8-a3e0-dea3b07ae611-00-3qbd4rtnpyqhh.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=f2d860d5:379:17)
+    at Router
+    at Provider (https://6e9b68d0-f69e-47d8-a3e0-dea3b07ae611-00-3qbd4rtnpyqhh.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-W25XJCJA.js?v=f2d860d5:38:15)
+    at TooltipProvider (https://6e9b68d0-f69e-47d8-a3e0-dea3b07ae611-00-3qbd4rtnpyqhh.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=f2d860d5:61:5)
+    at AuthProvider (https://6e9b68d0-f69e-47d8-a3e0-dea3b07ae611-00-3qbd4rtnpyqhh.spock.replit.dev/src/contexts/AuthContext.tsx:21:32)
+    at QueryClientProvider (https://6e9b68d0-f69e-47d8-a3e0-dea3b07ae611-00-3qbd4rtnpyqhh.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=f2d860d5:2805:3)
+    at App
+printWarning @ chunk-276SZO74.js?v=f2d860d5:521
+content.js:3 time: ƒ getTime() { [native code] }
+signup:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) null
+6e9b68d0-f69e-47d8-a…spock.replit.dev/:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+login:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) null
+login:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) null
+evdwovhikctwcjddcpzz.supabase.co/auth/v1/token?grant_type=password:1  Failed to load resource: the server responded with a status of 400 ()
+signup:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input data-replit-metadata=​"client/​src/​pages/​SignupPage.tsx:​98:​14" data-component-name=​"Input" type=​"password" class=​"flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:​border-0 file:​bg-transparent file:​text-sm file:​font-medium file:​text-foreground placeholder:​text-muted-foreground focus-visible:​outline-none focus-visible:​ring-2 focus-visible:​ring-ring focus-visible:​ring-offset-2 disabled:​cursor-not-allowed disabled:​opacity-50 md:​text-sm" id=​"password" placeholder=​"••••••••" required minlength=​"6" data-testid=​"input-password" value=​"Shacli1991">​flex
+evdwovhikctwcjddcpzz.supabase.co/rest/v1/users:1  Failed to load resource: the server responded with a status of 401 ()
+@supabase_supabase-js.js?v=f2d860d5:4412  POST https://evdwovhikctwcjddcpzz.supabase.co/rest/v1/users 401 (Unauthorized)
+(anonymous) @ @supabase_supabase-js.js?v=f2d860d5:4412
+(anonymous) @ @supabase_supabase-js.js?v=f2d860d5:4433
+fulfilled @ @supabase_supabase-js.js?v=f2d860d5:4385
+Promise.then
+step @ @supabase_supabase-js.js?v=f2d860d5:4398
+(anonymous) @ @supabase_supabase-js.js?v=f2d860d5:4400
+__awaiter8 @ @supabase_supabase-js.js?v=f2d860d5:4382
+(anonymous) @ @supabase_supabase-js.js?v=f2d860d5:4423
+then @ @supabase_supabase-js.js?v=f2d860d5:90
