@@ -85,7 +85,7 @@ const testimonials = [
   },
   {
     quote:
-      "The community events help me prep for interviews while Im finishing my final year. Its more than a job board—it's a launchpad.",
+      "The community events help me prep for interviews while I'm finishing my final year. It's more than a job board—it's a launchpad.",
     name: "Zanele Nkosi",
     title: "Final-year BCom student, Durban",
   },
