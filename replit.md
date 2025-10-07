@@ -37,7 +37,20 @@ A Tinder-style job application platform built with React, Supabase, and Express.
 
 ## Important Notes
 
-- Supabase credentials stored in Replit Secrets
+- Supabase credentials stored in Replit Secrets (`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`)
 - SQL schema file available at `supabase-schema.sql`
+- **CRITICAL**: SQL trigger in `supabase-trigger.sql` must be executed in Supabase SQL Editor for automatic user profile creation
 - All data queries use snake_case column names
 - Frontend uses camelCase, mapped to snake_case for Supabase
+
+## Recent Fixes (October 2025)
+
+- ✅ Fixed critical UUID syntax bug in swipe query (was breaking after first swipe)
+- ✅ Added comprehensive error handling with retry UI to all pages
+- ✅ Fixed DOM nesting warnings in marketing components
+- ✅ Created SQL trigger for automatic user profile creation (needs to be executed in Supabase)
+
+## Known Limitations
+
+- Filter functionality exists in UI but not connected to backend queries (logs to console only)
+- Profile editing UI exists but lacks backend mutations to save changes
