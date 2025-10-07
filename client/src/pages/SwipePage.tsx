@@ -1,78 +1,51 @@
 import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import JobCard from "@/components/JobCard";
 import FilterDrawer from "@/components/FilterDrawer";
 import ThemeToggle from "@/components/ThemeToggle";
 import { User, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-
-const MOCK_JOBS = [
-  {
-    id: "1",
-    title: "Frontend Developer",
-    company: "Shoprite Digital",
-    salary: "R25,000 - R35,000",
-    location: "Cape Town, Western Cape",
-    skills: ["React", "TypeScript", "Tailwind CSS", "Node.js", "Git"],
-    description:
-      "Join our dynamic team building the next generation of e-commerce solutions for South Africa. We're looking for a passionate frontend developer with experience in modern web technologies.",
-  },
-  {
-    id: "2",
-    title: "Customer Service Representative",
-    company: "MTN Group",
-    salary: "R12,000 - R18,000",
-    location: "Johannesburg, Gauteng",
-    skills: ["Communication", "Customer Service", "Problem Solving", "English", "Zulu"],
-    description:
-      "Provide exceptional customer support to MTN clients. Handle inquiries, resolve issues, and ensure customer satisfaction in a fast-paced call center environment.",
-  },
-  {
-    id: "3",
-    title: "Junior Data Analyst",
-    company: "Discovery Limited",
-    salary: "R20,000 - R28,000",
-    location: "Sandton, Johannesburg",
-    skills: ["Excel", "SQL", "Python", "Data Visualization", "Statistics"],
-    description:
-      "Analyze data to support business decisions in the insurance and healthcare sector. Work with large datasets to identify trends and provide actionable insights.",
-  },
-  {
-    id: "4",
-    title: "Sales Associate",
-    company: "Takealot",
-    salary: "R8,000 - R12,000 + Commission",
-    location: "Durban, KwaZulu-Natal",
-    skills: ["Sales", "Customer Service", "Communication", "Time Management"],
-    description:
-      "Drive sales growth by engaging with customers, processing orders, and maintaining excellent service standards at South Africa's leading online retailer.",
-  },
-  {
-    id: "5",
-    title: "Solar Installation Technician",
-    company: "GreenTech Solutions",
-    salary: "R15,000 - R22,000",
-    location: "Pretoria, Gauteng",
-    skills: ["Electrical Work", "Solar Energy", "Installation", "Safety Protocols"],
-    description:
-      "Install and maintain solar panel systems for residential and commercial clients. Join the renewable energy revolution in South Africa.",
-  },
-];
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import type { Job } from "@shared/schema";
 
 export default function SwipePage() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [swipeDirection, setSwipeDirection] = useState<
     "left" | "right" | null
   >(null);
 
-  const currentJob = MOCK_JOBS[currentIndex];
+  const { data: jobs, isLoading } = useQuery<Job[]>({
+    queryKey: ['/api/jobs/swipe', { userId: user?.id }],
+    enabled: !!user?.id,
+  });
+
+  const swipeMutation = useMutation({
+    mutationFn: async ({ jobId, action }: { jobId: string; action: string }) => {
+      return apiRequest('POST', '/api/swipes', {
+        userId: user?.id,
+        jobId,
+        action,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs/swipe'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
+    },
+  });
+
+  const currentJob = jobs?.[currentIndex];
 
   const handleSwipe = (direction: "left" | "right") => {
     setSwipeDirection(direction);
     setTimeout(() => {
       setSwipeDirection(null);
-      if (currentIndex < MOCK_JOBS.length - 1) {
+      if (jobs && currentIndex < jobs.length - 1) {
         setCurrentIndex(currentIndex + 1);
       } else {
         setCurrentIndex(0);
@@ -80,15 +53,48 @@ export default function SwipePage() {
     }, 300);
   };
 
-  const handleSkip = () => {
-    console.log("Skipped job:", currentJob.id);
-    handleSwipe("left");
+  const handleSkip = async () => {
+    if (!currentJob) return;
+    try {
+      await swipeMutation.mutateAsync({ jobId: currentJob.id, action: 'skip' });
+      handleSwipe("left");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
   };
 
-  const handleApply = () => {
-    console.log("Applied to job:", currentJob.id);
-    handleSwipe("right");
+  const handleApply = async () => {
+    if (!currentJob) return;
+    try {
+      await swipeMutation.mutateAsync({ jobId: currentJob.id, action: 'apply' });
+      toast({
+        title: "Application submitted!",
+        description: `You've applied to ${currentJob.title} at ${currentJob.company}`,
+      });
+      handleSwipe("right");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-muted-foreground">Loading jobs...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -139,7 +145,7 @@ export default function SwipePage() {
       </main>
 
       <div className="text-center py-4 text-sm text-muted-foreground">
-        {currentIndex + 1} of {MOCK_JOBS.length} jobs
+        {jobs && jobs.length > 0 ? `${currentIndex + 1} of ${jobs.length} jobs` : 'No jobs available'}
       </div>
     </div>
   );
