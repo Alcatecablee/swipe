@@ -1,0 +1,233 @@
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { SlidersHorizontal, X } from "lucide-react";
+import { useState } from "react";
+
+const SECTORS = [
+  "Tech & IT",
+  "Hospitality",
+  "E-commerce",
+  "Renewable Energy",
+  "Healthcare",
+  "Finance",
+  "Retail",
+  "Agriculture",
+];
+
+const LOCATIONS = [
+  "Cape Town",
+  "Johannesburg",
+  "Durban",
+  "Pretoria",
+  "Port Elizabeth",
+  "Soweto",
+  "Khayelitsha",
+  "Remote",
+];
+
+const SKILLS = [
+  "JavaScript",
+  "React",
+  "Python",
+  "Node.js",
+  "Customer Service",
+  "Sales",
+  "Marketing",
+  "Data Analysis",
+  "Project Management",
+  "Design",
+];
+
+export default function FilterDrawer() {
+  const [open, setOpen] = useState(false);
+  const [sector, setSector] = useState<string>("");
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [salaryRange, setSalaryRange] = useState([0, 100000]);
+  const [nqfLevel, setNqfLevel] = useState<string>("");
+
+  const toggleLocation = (location: string) => {
+    setSelectedLocations((prev) =>
+      prev.includes(location)
+        ? prev.filter((l) => l !== location)
+        : [...prev, location]
+    );
+  };
+
+  const toggleSkill = (skill: string) => {
+    setSelectedSkills((prev) =>
+      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
+    );
+  };
+
+  const handleApply = () => {
+    console.log("Filters applied:", {
+      sector,
+      selectedLocations,
+      selectedSkills,
+      salaryRange,
+      nqfLevel,
+    });
+    setOpen(false);
+  };
+
+  const handleReset = () => {
+    setSector("");
+    setSelectedLocations([]);
+    setSelectedSkills([]);
+    setSalaryRange([0, 100000]);
+    setNqfLevel("");
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full"
+          data-testid="button-filter"
+        >
+          <SlidersHorizontal className="w-5 h-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>Filter Jobs</SheetTitle>
+        </SheetHeader>
+
+        <div className="space-y-6 py-6">
+          <div className="space-y-2">
+            <Label htmlFor="sector">Sector</Label>
+            <Select value={sector} onValueChange={setSector}>
+              <SelectTrigger id="sector" data-testid="select-sector">
+                <SelectValue placeholder="Select sector" />
+              </SelectTrigger>
+              <SelectContent>
+                {SECTORS.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Location</Label>
+            <div className="flex flex-wrap gap-2">
+              {LOCATIONS.map((location) => (
+                <Badge
+                  key={location}
+                  variant={
+                    selectedLocations.includes(location)
+                      ? "default"
+                      : "outline"
+                  }
+                  className="cursor-pointer hover-elevate active-elevate-2"
+                  onClick={() => toggleLocation(location)}
+                  data-testid={`badge-location-${location}`}
+                >
+                  {location}
+                  {selectedLocations.includes(location) && (
+                    <X className="w-3 h-3 ml-1" />
+                  )}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Skills</Label>
+            <div className="flex flex-wrap gap-2">
+              {SKILLS.map((skill) => (
+                <Badge
+                  key={skill}
+                  variant={selectedSkills.includes(skill) ? "default" : "outline"}
+                  className="cursor-pointer hover-elevate active-elevate-2"
+                  onClick={() => toggleSkill(skill)}
+                  data-testid={`badge-skill-${skill}`}
+                >
+                  {skill}
+                  {selectedSkills.includes(skill) && (
+                    <X className="w-3 h-3 ml-1" />
+                  )}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <Label>Salary Range (ZAR)</Label>
+              <span className="text-sm text-muted-foreground">
+                R{salaryRange[0].toLocaleString()} - R
+                {salaryRange[1].toLocaleString()}
+              </span>
+            </div>
+            <Slider
+              value={salaryRange}
+              onValueChange={setSalaryRange}
+              min={0}
+              max={100000}
+              step={5000}
+              className="w-full"
+              data-testid="slider-salary"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="nqf">NQF Level</Label>
+            <Select value={nqfLevel} onValueChange={setNqfLevel}>
+              <SelectTrigger id="nqf" data-testid="select-nqf">
+                <SelectValue placeholder="Select NQF level" />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
+                  <SelectItem key={level} value={level.toString()}>
+                    Level {level}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="flex gap-3 sticky bottom-0 bg-background pt-4 pb-2 border-t">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={handleReset}
+            data-testid="button-reset-filters"
+          >
+            Reset
+          </Button>
+          <Button
+            variant="default"
+            className="flex-1"
+            onClick={handleApply}
+            data-testid="button-apply-filters"
+          >
+            Apply Filters
+          </Button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
