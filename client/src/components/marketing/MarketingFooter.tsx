@@ -66,8 +66,8 @@ export function MarketingFooter() {
           <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground sm:grid-cols-3 md:text-right">
             {footerLinks.map(({ label, href }) => (
               href.startsWith("/") ? (
-                <Link key={label} href={href}>
-                  <a className="transition-colors hover:text-primary">{label}</a>
+                <Link key={label} href={href} className="transition-colors hover:text-primary">
+                  {label}
                 </Link>
               ) : (
                 <a
