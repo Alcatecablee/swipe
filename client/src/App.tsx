@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import LandingPage from "@/pages/LandingPage";
 import SwipePage from "@/pages/SwipePage";
 import ApplicationsPage from "@/pages/ApplicationsPage";
 import ProfilePage from "@/pages/ProfilePage";
@@ -17,7 +18,7 @@ function Router() {
     <Switch>
       <Route path="/login" component={LoginPage} />
       <Route path="/signup" component={SignupPage} />
-      <Route path="/">
+      <Route path="/app">
         <ProtectedRoute>
           <SwipePage />
         </ProtectedRoute>
@@ -32,6 +33,7 @@ function Router() {
           <ProfilePage />
         </ProtectedRoute>
       </Route>
+      <Route path="/" component={LandingPage} />
       <Route component={NotFound} />
     </Switch>
   );
