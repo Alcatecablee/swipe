@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import JobCard from "@/components/JobCard";
 import FilterDrawer from "@/components/FilterDrawer";
 import ThemeToggle from "@/components/ThemeToggle";
 import { User, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Job } from "@shared/schema";
 
@@ -21,21 +22,62 @@ export default function SwipePage() {
   >(null);
 
   const { data: jobs, isLoading } = useQuery<Job[]>({
-    queryKey: ['/api/jobs/swipe', { userId: user?.id }],
+    queryKey: ['jobs-swipe', user?.id],
     enabled: !!user?.id,
+    queryFn: async () => {
+      // Get already swiped job IDs
+      const { data: swipes } = await supabase
+        .from('swipes')
+        .select('job_id')
+        .eq('user_id', user!.id);
+
+      const swipedJobIds = swipes?.map(s => s.job_id) || [];
+
+      // Get jobs not yet swiped
+      let query = supabase
+        .from('jobs')
+        .select('*')
+        .eq('is_active', true);
+
+      if (swipedJobIds.length > 0) {
+        query = query.not('id', 'in', `(${swipedJobIds.join(',')})`);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
   });
 
   const swipeMutation = useMutation({
     mutationFn: async ({ jobId, action }: { jobId: string; action: string }) => {
-      return apiRequest('POST', '/api/swipes', {
-        userId: user?.id,
-        jobId,
-        action,
-      });
+      // Insert swipe with correct snake_case column names
+      const { error: swipeError } = await supabase
+        .from('swipes')
+        .insert({
+          user_id: user!.id,
+          job_id: jobId,
+          action,
+        });
+
+      if (swipeError) throw swipeError;
+
+      // If action is "apply", also create an application
+      if (action === 'apply') {
+        const { error: appError } = await supabase
+          .from('applications')
+          .insert({
+            user_id: user!.id,
+            job_id: jobId,
+            status: 'pending',
+          });
+
+        if (appError) throw appError;
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/jobs/swipe'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
+      queryClient.invalidateQueries({ queryKey: ['jobs-swipe'] });
+      queryClient.invalidateQueries({ queryKey: ['applications'] });
     },
   });
 

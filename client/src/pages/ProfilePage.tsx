@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import UserProfile from "@/components/UserProfile";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useToast } from "@/hooks/use-toast";
@@ -29,8 +30,27 @@ export default function ProfilePage() {
   const { toast } = useToast();
 
   const { data: profile, isLoading } = useQuery<UserProfileData>({
-    queryKey: ['/api/profile', user?.id],
+    queryKey: ['profile', user?.id],
     enabled: !!user?.id,
+    queryFn: async () => {
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user!.id)
+        .single();
+
+      if (userError) throw userError;
+
+      const { data: experience, error: expError } = await supabase
+        .from('user_experience')
+        .select('*')
+        .eq('user_id', user!.id)
+        .order('created_at', { ascending: false });
+
+      if (expError) throw expError;
+
+      return { ...userData, experience };
+    },
   });
 
   const handleSignOut = async () => {

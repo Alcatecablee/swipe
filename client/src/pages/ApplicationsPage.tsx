@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import ApplicationCard from "@/components/ApplicationCard";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -26,8 +27,27 @@ export default function ApplicationsPage() {
   const { user } = useAuth();
 
   const { data: applications, isLoading } = useQuery<ApplicationWithJob[]>({
-    queryKey: ['/api/applications', { userId: user?.id }],
+    queryKey: ['applications', user?.id],
     enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('applications')
+        .select(`
+          *,
+          jobs:job_id (
+            id,
+            title,
+            company,
+            salary,
+            location
+          )
+        `)
+        .eq('user_id', user!.id)
+        .order('applied_at', { ascending: false });
+
+      if (error) throw error;
+      return data as ApplicationWithJob[];
+    },
   });
 
   if (isLoading) {
