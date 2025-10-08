@@ -13,12 +13,16 @@ export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
 }
 
 export async function extractTextFromImage(buffer: Buffer): Promise<string> {
+  let worker;
   try {
-    const worker = await Tesseract.createWorker('eng');
+    worker = await Tesseract.createWorker('eng');
     const { data: { text } } = await worker.recognize(buffer);
     await worker.terminate();
     return text;
   } catch (error) {
+    if (worker) {
+      await worker.terminate();
+    }
     console.error('OCR error:', error);
     throw new Error('Failed to extract text from image');
   }

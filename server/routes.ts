@@ -423,12 +423,13 @@ router.post("/api/upload-resume", upload.single('resume'), async (req: Request, 
 
       if (uploadError) {
         console.error('Supabase upload error:', uploadError);
-      } else {
-        const { data: { publicUrl } } = supabase.storage
-          .from('resumes')
-          .getPublicUrl(fileName);
-        resumeUrl = publicUrl;
+        return res.status(500).json({ error: 'Failed to upload resume file to storage' });
       }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('resumes')
+        .getPublicUrl(fileName);
+      resumeUrl = publicUrl;
     }
 
     // Extract text from PDF or image
