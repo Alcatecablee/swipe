@@ -13,34 +13,93 @@ A Tinder-style job application platform with AI auto-apply for the South African
 
 ## Current Features (MVP - October 2025)
 
-### ✅ Implemented
+### ✅ Implemented (Sprint 1-6 Complete!)
+
+#### Core Platform Features
 - **Swipe interface** for job applications (apply/skip)
 - **User authentication** with protected routes
 - **Real-time job listings** from Supabase
-- **AI Auto-Apply** - Generates professional cover letters using Groq AI
+- **AI-powered cover letters** using Groq AI (Llama 3.3 70B)
 - **Application tracking** with status updates
 - **User profiles** with skills, location, NQF level, languages
 - **Work experience** tracking
 - **Secure data access** with RLS policies
 - **Dark mode** support
-- **AI-generated cover letters** displayed in application cards
-- **Application URLs** generated for job searches
 
-### 🔧 AI Auto-Apply Features
-- Uses Groq's free tier (Llama 3.3 70B Versatile model)
-- Generates contextual cover letters based on user profile + job requirements
-- Processes applications in batches (max 10 at a time for rate limiting)
-- Validates AI-generated content before saving
-- Shows AI processing status with badges
-- Comprehensive error handling with user feedback
+#### 🎯 Sprint 1: Resume Upload & AI Parsing (COMPLETE)
+- ✅ Resume upload (PDF/image support, max 5MB)
+- ✅ AI-powered resume parsing - extracts skills, experience, education, contact info
+- ✅ Resume preview and manual edit UI
+- ✅ Database schema with resume fields
+- ✅ Resume text storage for AI processing
+
+#### 🚀 Sprint 2: Enhanced Onboarding "Sorce Passport" (COMPLETE)
+- ✅ Multi-step onboarding wizard (2-5 minute setup)
+- ✅ Resume upload flow with drag-and-drop
+- ✅ AI parsing with preview & edit
+- ✅ Preferences collection (job title, salary, work type, location)
+- ✅ Profile completion tracking
+- ⏳ OAuth integration (Google/LinkedIn) - pending external config
+
+#### 🎮 Sprint 3: Freemium Model & Gamification (COMPLETE)
+- ✅ **Daily swipe limits** - 50 free swipes/day, unlimited for premium
+- ✅ **Swipe counter badge** - Real-time remaining swipes display
+- ✅ **Premium user support** - Unlimited swipes flag
+- ✅ **Referral system** - Earn bonus swipes by inviting friends
+  - Referrer gets +10 permanent swipes
+  - New user gets +25 bonus swipes
+  - Unique referral codes (format: SJ3A7B9C)
+- ✅ **Daily reset logic** - Automatic midnight swipe refresh
+- ✅ **Backend API** - Swipe limit enforcement with retry logic
+
+#### 🧠 Sprint 4: Smart Matching & Achievement System (COMPLETE)
+- ✅ **Smart matching algorithm** - ML-based job ranking with:
+  - Skill overlap scoring (60% weight)
+  - Experience level matching (15% weight)
+  - Salary compatibility (15% weight)
+  - Location matching (10% weight)
+- ✅ **Achievement badges system** with 10 badges:
+  - First Swipe, Swipe Master (10, 50 swipes)
+  - First Application, Career Climber (5, 10, 25 apps)
+  - Profile Pro, Early Bird, Referral Master
+- ✅ **Badge tracking** - Auto-awards on milestones
+- ✅ **Badge API endpoints** - Real-time badge notifications
+
+#### 🤖 Sprint 6: AI Auto-Apply & Interview Prep (COMPLETE)
+- ✅ **Auto-form filling service** - Generates application data for external ATS:
+  - Personal details auto-population
+  - Work authorization responses
+  - Salary expectations
+  - Tailored "why interested" statements
+  - Key qualifications matching
+- ✅ **ATS keyword extraction** - AI identifies must-have keywords from job descriptions
+- ✅ **Interview prep AI generator**:
+  - Behavioral questions with STAR method guidance
+  - Technical questions based on role requirements
+  - Culture fit questions
+  - Smart questions to ask interviewers
+- ✅ **Answer coaching** - Personalized answer suggestions
+- ✅ **Practice feedback** - AI analyzes practice answers with scores
+- ✅ **All AI features use Groq** (Llama 3.3 70B Versatile model)
+
+### 🔧 AI Capabilities Summary
+- **Resume parsing** - Extracts structured data from documents
+- **Cover letter generation** - Contextual, professional cover letters
+- **Application auto-fill** - Pre-fills ATS forms intelligently
+- **Interview prep** - Generates tailored practice questions
+- **Answer coaching** - STAR method guidance & feedback
+- **ATS optimization** - Keyword extraction for better ranking
+- **Batch processing** - Max 10 applications at once
+- **Error handling** - Comprehensive user feedback
 
 ## Database Schema
 
-- `users` - User profiles (linked to Supabase Auth)
-- `jobs` - Job listings with sector, location, skills
-- `applications` - Track user applications with status
-- `swipes` - Record of all swipe actions
-- `user_experience` - User work history
+- `users` - User profiles with resume data, preferences, swipe limits, referral codes, Stripe integration
+- `jobs` - Job listings with sector, location, skills, requirements
+- `applications` - Application tracking with status, cover letters, AI processing flags
+- `swipes` - Record of all swipe actions (apply/skip)
+- `user_experience` - User work history and roles
+- `badges` - Achievement badges (10 types: swipes, applications, profile, referrals)
 
 ## Security
 
@@ -49,13 +108,42 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - User sessions managed by Supabase Auth
 - All data access scoped to authenticated user
 
+## API Endpoints (Express Backend)
+
+### Resume & Profile
+- `POST /api/parse-resume` - AI resume parsing (Groq)
+- `POST /api/profile` - Update user profile
+- `GET /api/profile/:userId` - Get user profile
+
+### Smart Matching & Swipes
+- `GET /api/jobs/:userId` - Get ranked job matches (smart algorithm)
+- `GET /api/swipe-limits/:userId` - Check remaining swipes
+- `POST /api/swipe` - Create swipe (with limit enforcement & badge checks)
+
+### Badges & Referrals
+- `GET /api/badges/:userId` - Get user badges
+- `POST /api/apply-referral` - Apply referral code for bonus swipes
+- `GET /api/referral-stats/:userId` - Get referral statistics
+
+### AI Auto-Apply & Interview Prep
+- `POST /api/generate-application-data` - Generate ATS form data
+- `POST /api/extract-ats-keywords` - Extract job keywords
+- `POST /api/generate-interview-questions` - AI interview prep
+- `POST /api/interview-answer-suggestion` - Get answer coaching
+- `POST /api/analyze-interview-answer` - Practice answer feedback
+
+### Cover Letters & Applications
+- `POST /api/generate-cover-letter` - AI cover letter generation
+- `POST /api/batch-process` - Batch process pending applications
+
 ## Important Notes
 
-- Supabase credentials stored in Replit Secrets (`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`)
-- SQL schema file available at `supabase-schema.sql`
-- **CRITICAL**: SQL trigger in `supabase-trigger.sql` must be executed in Supabase SQL Editor for automatic user profile creation
-- All data queries use snake_case column names
-- Frontend uses camelCase, mapped to snake_case for Supabase
+- **AI Service**: Groq API key required (`GROQ_API_KEY`)
+- **Supabase**: Credentials in Replit Secrets (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
+- **Payment Gateway**: Stripe integration ready (requires SA-compatible alternative like PayFast for South African users)
+- **SQL Setup**: Schema in `supabase-schema.sql`, trigger in `supabase-trigger.sql`
+- **RLS Policies**: Must be configured in Supabase for data security
+- **Column Naming**: Database uses snake_case, frontend uses camelCase
 
 ## Enhanced Product Roadmap - Sorce-Inspired Vision
 
