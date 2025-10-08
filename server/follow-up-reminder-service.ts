@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { applications, jobs, users } from "@shared/schema";
-import { eq, and, lt, inArray } from "drizzle-orm";
+import { eq, and, lt, gte, inArray } from "drizzle-orm";
 import { sendFollowUpReminder } from "./push-notification-service";
 
 // Configuration for follow-up reminder days
@@ -22,14 +22,13 @@ export async function checkAndSendFollowUpReminders(): Promise<{
 
     // Check for each reminder day threshold
     for (const days of FOLLOW_UP_REMINDER_DAYS) {
-      const reminderDate = new Date(now);
-      reminderDate.setDate(reminderDate.getDate() - days);
-      
-      // Set to beginning of that day
-      reminderDate.setHours(0, 0, 0, 0);
+      // Calculate date range in UTC to match database timestamps
+      const nowUTC = new Date(now.toISOString().split('T')[0] + 'T00:00:00.000Z');
+      const reminderDate = new Date(nowUTC);
+      reminderDate.setUTCDate(reminderDate.getUTCDate() - days);
       
       const nextDay = new Date(reminderDate);
-      nextDay.setDate(nextDay.getDate() + 1);
+      nextDay.setUTCDate(nextDay.getUTCDate() + 1);
 
       // Find pending applications from exactly N days ago
       const pendingApplications = await db
@@ -44,8 +43,8 @@ export async function checkAndSendFollowUpReminders(): Promise<{
         .where(
           and(
             eq(applications.status, "pending"),
-            lt(applications.appliedAt, nextDay),
-            eq(applications.appliedAt, reminderDate)
+            gte(applications.appliedAt, reminderDate),
+            lt(applications.appliedAt, nextDay)
           )
         );
 
