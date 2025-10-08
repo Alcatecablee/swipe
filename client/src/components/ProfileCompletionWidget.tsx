@@ -135,9 +135,9 @@ export function ProfileCompletionWidget({ userId, compact = false }: ProfileComp
         {score < 100 && (
           <div className="pt-4 border-t">
             <p className="text-sm text-muted-foreground">
-              {score < 50 && "🎯 Complete your basic information to get started"}
-              {score >= 50 && score < 80 && "📈 Great progress! Keep adding details"}
-              {score >= 80 && score < 100 && "🌟 Almost there! Just a few more items"}
+              {score < 50 && "Complete your basic information to get started"}
+              {score >= 50 && score < 80 && "Great progress! Keep adding details"}
+              {score >= 80 && score < 100 && "Almost there! Just a few more items"}
             </p>
           </div>
         )}
