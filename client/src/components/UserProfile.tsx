@@ -108,15 +108,14 @@ export default function UserProfile({
         .from('resumes')
         .getPublicUrl(filePath);
 
-      // Update user profile with resume URL
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({
+      // Update user metadata with resume URL
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: {
           resume_url: publicUrl,
           resume_file_name: file.name,
           resume_uploaded_at: new Date().toISOString()
-        })
-        .eq('id', userId);
+        }
+      });
 
       if (updateError) throw updateError;
 
@@ -151,15 +150,14 @@ export default function UserProfile({
         return;
       }
 
-      // Update database to remove resume reference
-      const { error } = await supabase
-        .from('users')
-        .update({
+      // Update user metadata to remove resume reference
+      const { error } = await supabase.auth.updateUser({
+        data: {
           resume_url: null,
           resume_file_name: null,
           resume_uploaded_at: null
-        })
-        .eq('id', userId);
+        }
+      });
 
       if (error) throw error;
 
