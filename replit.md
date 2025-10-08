@@ -82,6 +82,16 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - ✅ **Practice feedback** - AI analyzes practice answers with scores
 - ✅ **All AI features use Groq** (Llama 3.3 70B Versatile model)
 
+#### 🔔 Sprint 7: Notifications & Tracking (MOSTLY COMPLETE)
+- ✅ **Push notifications** - Web Push API with VAPID keys, service worker
+- ✅ **In-app notification system** - NotificationBell component with unread count
+- ✅ **Real-time status tracking** - Notification types: application_status, profile_viewed, interview_invite, follow_up_reminder, badge_earned
+- ✅ **Follow-up reminder system** - Automatic reminders at 3, 7, and 14 days for pending applications (UTC-normalized)
+- ✅ **Push subscription management** - Subscribe/unsubscribe with settings UI
+- ✅ **Notification API endpoints** - Full CRUD operations for notifications
+- ⏳ **Email notification system** - Not implemented (pending)
+- ⏳ **VAPID keys externalization** - Currently hardcoded, needs environment variables (security improvement)
+
 ### 🔧 AI Capabilities Summary
 - **Resume parsing** - Extracts structured data from documents
 - **Cover letter generation** - Contextual, professional cover letters
@@ -100,6 +110,8 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - `swipes` - Record of all swipe actions (apply/skip)
 - `user_experience` - User work history and roles
 - `badges` - Achievement badges (10 types: swipes, applications, profile, referrals)
+- `notifications` - In-app notifications with read status, action URLs (Sprint 7)
+- `push_subscriptions` - Web push subscription endpoints and keys (Sprint 7)
 
 ## Security
 
