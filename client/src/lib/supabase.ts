@@ -1,5 +1,15 @@
-// Note: Supabase has been replaced with Replit PostgreSQL database
-// This file is kept for compatibility but should not be used
-// Authentication should be handled via Replit Auth or backend API
+import { createClient } from '@supabase/supabase-js';
 
-export const supabase = null;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+});
