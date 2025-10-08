@@ -57,6 +57,15 @@ export default function UserProfile({
       const file = event.target.files?.[0];
       if (!file) return;
 
+      if (!supabase) {
+        toast({
+          variant: "destructive",
+          title: "Upload unavailable",
+          description: "Supabase is not configured. Please contact support.",
+        });
+        return;
+      }
+
       // Validate file type
       const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!allowedTypes.includes(file.type)) {
@@ -80,16 +89,16 @@ export default function UserProfile({
 
       setUploading(true);
 
-      // Upload to Supabase Storage
+      // Upload to Supabase Storage with user-specific path
       const fileExt = file.name.split('.').pop();
-      const fileName = `${userId}-${Date.now()}.${fileExt}`;
-      const filePath = `resumes/${fileName}`;
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${userId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('resumes')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: true
         });
 
       if (uploadError) throw uploadError;
@@ -133,6 +142,15 @@ export default function UserProfile({
 
   const handleDeleteResume = async () => {
     try {
+      if (!supabase) {
+        toast({
+          variant: "destructive",
+          title: "Delete unavailable",
+          description: "Supabase is not configured. Please contact support.",
+        });
+        return;
+      }
+
       // Update database to remove resume reference
       const { error } = await supabase
         .from('users')
