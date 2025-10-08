@@ -2,7 +2,7 @@ import { Router, type Request, Response } from "express";
 import { generateCoverLetter, parseResumeText } from "./ai-service";
 import { z } from "zod";
 import { db } from "./db";
-import { users, jobs, applications, userExperience, swipes } from "@shared/schema";
+import { users, jobs, applications, userExperience, swipes, profileViews, interviewSchedule, userAnalytics } from "@shared/schema";
 import { eq, and, not, inArray, desc } from "drizzle-orm";
 import { rankJobsByMatch } from "./matching-service";
 import Stripe from "stripe";
@@ -1172,6 +1172,291 @@ router.post("/api/follow-up-reminders/send", async (req: Request, res: Response)
   } catch (error: any) {
     console.error("Error sending manual follow-up reminder:", error);
     res.status(500).json({ error: error.message || "Failed to send follow-up reminder" });
+  }
+});
+
+// ============================================================
+// DASHBOARD & PROFILE ANALYTICS ENDPOINTS
+// ============================================================
+
+// Get user analytics (dashboard data)
+router.get("/api/analytics/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    // Get or create analytics record
+    let [analytics] = await db
+      .select()
+      .from(userAnalytics)
+      .where(eq(userAnalytics.userId, userId))
+      .limit(1);
+
+    if (!analytics) {
+      // Create initial analytics record
+      const [newAnalytics] = await db
+        .insert(userAnalytics)
+        .values({ userId })
+        .returning();
+      analytics = newAnalytics;
+    }
+
+    // Get real-time stats
+    const totalSwipes = await db.select().from(swipes).where(eq(swipes.userId, userId));
+    const totalApplications = await db.select().from(applications).where(eq(applications.userId, userId));
+    const profileViewsData = await db.select().from(profileViews).where(eq(profileViews.viewedUserId, userId));
+    const interviewsData = await db.select().from(interviewSchedule).where(eq(interviewSchedule.userId, userId));
+
+    // Calculate conversion rate
+    const conversionRate = totalSwipes.length > 0 
+      ? ((totalApplications.length / totalSwipes.length) * 100).toFixed(1) 
+      : "0";
+
+    // Get hired count
+    const hiredCount = totalApplications.filter(app => app.status === 'accepted').length;
+
+    // Update analytics with current stats
+    const [updatedAnalytics] = await db
+      .update(userAnalytics)
+      .set({
+        totalSwipes: totalSwipes.length,
+        totalApplications: totalApplications.length,
+        profileViews: profileViewsData.length,
+        interviewsScheduled: interviewsData.length,
+        hiredCount,
+        applicationConversionRate: `${conversionRate}%`,
+        lastActivityAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(userAnalytics.userId, userId))
+      .returning();
+
+    res.json(updatedAnalytics);
+  } catch (error: any) {
+    console.error("Error fetching analytics:", error);
+    res.status(500).json({ error: error.message || "Failed to fetch analytics" });
+  }
+});
+
+// Calculate and update profile completion score
+router.post("/api/profile-completion/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Calculate completion score (0-100)
+    let score = 0;
+    const fields = {
+      name: 10,
+      email: 10,
+      phone: 5,
+      location: 10,
+      skills: 15,
+      languages: 10,
+      education: 10,
+      resumeUrl: 20,
+      preferredJobTitle: 10,
+    };
+
+    if (user.name) score += fields.name;
+    if (user.email) score += fields.email;
+    if (user.phone) score += fields.phone;
+    if (user.location) score += fields.location;
+    if (user.skills && user.skills.length > 0) score += fields.skills;
+    if (user.languages && user.languages.length > 0) score += fields.languages;
+    if (user.education) score += fields.education;
+    if (user.resumeUrl) score += fields.resumeUrl;
+    if (user.preferredJobTitle) score += fields.preferredJobTitle;
+
+    // Get or create analytics
+    let [analytics] = await db
+      .select()
+      .from(userAnalytics)
+      .where(eq(userAnalytics.userId, userId))
+      .limit(1);
+
+    if (!analytics) {
+      const [newAnalytics] = await db
+        .insert(userAnalytics)
+        .values({ userId, profileCompletionScore: score })
+        .returning();
+      analytics = newAnalytics;
+    } else {
+      [analytics] = await db
+        .update(userAnalytics)
+        .set({ profileCompletionScore: score, updatedAt: new Date() })
+        .where(eq(userAnalytics.userId, userId))
+        .returning();
+    }
+
+    res.json({ score, analytics });
+  } catch (error: any) {
+    console.error("Error calculating profile completion:", error);
+    res.status(500).json({ error: error.message || "Failed to calculate profile completion" });
+  }
+});
+
+// Record profile view
+router.post("/api/profile-views", async (req: Request, res: Response) => {
+  try {
+    const { viewedUserId, viewerUserId, viewerType, companyName, jobId } = req.body;
+
+    if (!viewedUserId || !viewerType) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const [profileView] = await db
+      .insert(profileViews)
+      .values({
+        viewedUserId,
+        viewerUserId: viewerUserId || null,
+        viewerType,
+        companyName: companyName || null,
+        jobId: jobId || null,
+      })
+      .returning();
+
+    res.json(profileView);
+  } catch (error: any) {
+    console.error("Error recording profile view:", error);
+    res.status(500).json({ error: error.message || "Failed to record profile view" });
+  }
+});
+
+// Get profile views for a user
+router.get("/api/profile-views/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const views = await db
+      .select()
+      .from(profileViews)
+      .where(eq(profileViews.viewedUserId, userId))
+      .orderBy(desc(profileViews.createdAt))
+      .limit(50);
+
+    res.json(views);
+  } catch (error: any) {
+    console.error("Error fetching profile views:", error);
+    res.status(500).json({ error: error.message || "Failed to fetch profile views" });
+  }
+});
+
+// Interview schedule endpoints
+router.post("/api/interviews", async (req: Request, res: Response) => {
+  try {
+    const {
+      userId,
+      applicationId,
+      jobId,
+      interviewType,
+      scheduledAt,
+      duration,
+      location,
+      notes,
+    } = req.body;
+
+    if (!userId || !interviewType || !scheduledAt) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const [interview] = await db
+      .insert(interviewSchedule)
+      .values({
+        userId,
+        applicationId: applicationId || null,
+        jobId: jobId || null,
+        interviewType,
+        scheduledAt: new Date(scheduledAt),
+        duration: duration || 60,
+        location: location || null,
+        notes: notes || null,
+      })
+      .returning();
+
+    res.json(interview);
+  } catch (error: any) {
+    console.error("Error creating interview:", error);
+    res.status(500).json({ error: error.message || "Failed to create interview" });
+  }
+});
+
+// Get user's interviews
+router.get("/api/interviews/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const interviews = await db
+      .select()
+      .from(interviewSchedule)
+      .where(eq(interviewSchedule.userId, userId))
+      .orderBy(interviewSchedule.scheduledAt);
+
+    res.json(interviews);
+  } catch (error: any) {
+    console.error("Error fetching interviews:", error);
+    res.status(500).json({ error: error.message || "Failed to fetch interviews" });
+  }
+});
+
+// Update interview status
+router.patch("/api/interviews/:interviewId", async (req: Request, res: Response) => {
+  try {
+    const { interviewId } = req.params;
+    const { status, notes } = req.body;
+
+    const updateData: any = {};
+    if (status) updateData.status = status;
+    if (notes !== undefined) updateData.notes = notes;
+
+    const [updatedInterview] = await db
+      .update(interviewSchedule)
+      .set(updateData)
+      .where(eq(interviewSchedule.id, interviewId))
+      .returning();
+
+    if (!updatedInterview) {
+      return res.status(404).json({ error: "Interview not found" });
+    }
+
+    res.json(updatedInterview);
+  } catch (error: any) {
+    console.error("Error updating interview:", error);
+    res.status(500).json({ error: error.message || "Failed to update interview" });
+  }
+});
+
+// Get application statistics for dashboard
+router.get("/api/application-stats/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const userApplications = await db
+      .select()
+      .from(applications)
+      .where(eq(applications.userId, userId));
+
+    const stats = {
+      total: userApplications.length,
+      pending: userApplications.filter(app => app.status === 'pending').length,
+      reviewing: userApplications.filter(app => app.status === 'reviewing').length,
+      interview: userApplications.filter(app => app.status === 'interview').length,
+      accepted: userApplications.filter(app => app.status === 'accepted').length,
+      rejected: userApplications.filter(app => app.status === 'rejected').length,
+    };
+
+    res.json(stats);
+  } catch (error: any) {
+    console.error("Error fetching application stats:", error);
+    res.status(500).json({ error: error.message || "Failed to fetch application stats" });
   }
 });
 
