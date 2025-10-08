@@ -1,14 +1,11 @@
 import { Router, type Request, Response } from "express";
-import { createClient } from "@supabase/supabase-js";
 import { generateCoverLetter } from "./ai-service";
 import { z } from "zod";
+import { db } from "./db";
+import { applications, users, jobs, userExperience } from "../shared/schema";
+import { eq, and } from "drizzle-orm";
 
 const router = Router();
-
-const supabaseUrl = process.env.VITE_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Validation schemas
 const processApplicationSchema = z.object({
@@ -24,60 +21,67 @@ const batchProcessSchema = z.object({
 // Helper function to process a single application
 async function processSingleApplication(userId: string, jobId: string, applicationId: string) {
   // SECURITY: First verify the application exists and belongs to this user
-  const { data: application, error: appError } = await supabase
-    .from("applications")
-    .select("*")
-    .eq("id", applicationId)
-    .eq("user_id", userId)
-    .single();
+  const application = await db
+    .select()
+    .from(applications)
+    .where(
+      and(
+        eq(applications.id, applicationId),
+        eq(applications.userId, userId)
+      )
+    )
+    .limit(1)
+    .then(rows => rows[0]);
 
-  if (appError || !application) {
+  if (!application) {
     throw new Error("Application not found or access denied");
   }
 
   // Verify application is in pending state and not already processed
-  if (application.status !== "pending" || application.ai_processed) {
+  if (application.status !== "pending" || application.aiProcessed) {
     throw new Error("Application has already been processed");
   }
 
   // Verify the jobId matches the application
-  if (application.job_id !== jobId) {
+  if (application.jobId !== jobId) {
     throw new Error("Job ID mismatch");
   }
 
   // Now safely fetch user data
-  const { data: user, error: userError } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", userId)
-    .single();
+  const user = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
+    .then(rows => rows[0]);
 
-  if (userError || !user) {
+  if (!user) {
     throw new Error("User not found");
   }
 
-  const { data: job, error: jobError } = await supabase
-    .from("jobs")
-    .select("*")
-    .eq("id", jobId)
-    .single();
+  const job = await db
+    .select()
+    .from(jobs)
+    .where(eq(jobs.id, jobId))
+    .limit(1)
+    .then(rows => rows[0]);
 
-  if (jobError || !job) {
+  if (!job) {
     throw new Error("Job not found");
   }
 
-  const { data: experience } = await supabase
-    .from("user_experience")
-    .select("*")
-    .eq("user_id", userId);
+  const experience = await db
+    .select()
+    .from(userExperience)
+    .where(eq(userExperience.userId, userId));
 
   const userProfile = {
-    name: user.name,
+    name: user.name || undefined,
     email: user.email,
-    location: user.location,
-    nqfLevel: user.nqf_level,
-    skills: user.skills,
-    languages: user.languages,
+    location: user.location || undefined,
+    nqfLevel: user.nqfLevel || undefined,
+    skills: user.skills || undefined,
+    languages: user.languages || undefined,
     experience: experience || [],
   };
 
@@ -89,7 +93,7 @@ async function processSingleApplication(userId: string, jobId: string, applicati
     location: job.location,
     salary: job.salary,
     sector: job.sector,
-    nqfLevel: job.nqf_level,
+    nqfLevel: job.nqfLevel,
   };
 
   const coverLetter = await generateCoverLetter(userProfile, jobDetails);
@@ -104,24 +108,23 @@ async function processSingleApplication(userId: string, jobId: string, applicati
   )}`;
 
   // Update the application with AI-generated content
-  const { data: updatedApp, error: updateError } = await supabase
-    .from("applications")
-    .update({
-      cover_letter: coverLetter,
-      application_url: applicationUrl,
-      ai_processed: true,
+  const updatedApp = await db
+    .update(applications)
+    .set({
+      coverLetter: coverLetter,
+      applicationUrl: applicationUrl,
+      aiProcessed: true,
       status: "auto_applied",
     })
-    .eq("id", applicationId)
-    .eq("user_id", userId) // Security: double-check user owns the application
-    .select()
-    .single();
+    .where(
+      and(
+        eq(applications.id, applicationId),
+        eq(applications.userId, userId) // Security: double-check user owns the application
+      )
+    )
+    .returning()
+    .then(rows => rows[0]);
 
-  if (updateError) {
-    throw new Error(`Failed to update application: ${updateError.message}`);
-  }
-
-  // Verify the update actually occurred
   if (!updatedApp) {
     throw new Error("Update failed - application may have been modified");
   }
@@ -157,17 +160,17 @@ router.post("/api/batch-process-applications", async (req: Request, res: Respons
     const { userId } = validated;
 
     // Fetch pending applications
-    const { data: pendingApplications, error: appsError } = await supabase
-      .from("applications")
-      .select("id, job_id")
-      .eq("user_id", userId)
-      .eq("status", "pending")
-      .eq("ai_processed", false)
+    const pendingApplications = await db
+      .select({ id: applications.id, jobId: applications.jobId })
+      .from(applications)
+      .where(
+        and(
+          eq(applications.userId, userId),
+          eq(applications.status, "pending"),
+          eq(applications.aiProcessed, false)
+        )
+      )
       .limit(10); // Rate limiting: max 10 at a time to prevent abuse
-
-    if (appsError) {
-      throw appsError;
-    }
 
     if (!pendingApplications || pendingApplications.length === 0) {
       return res.json({
@@ -183,7 +186,7 @@ router.post("/api/batch-process-applications", async (req: Request, res: Respons
     
     for (const app of pendingApplications) {
       try {
-        const result = await processSingleApplication(userId, app.job_id, app.id);
+        const result = await processSingleApplication(userId, app.jobId, app.id);
         results.push({ 
           applicationId: app.id, 
           success: true, 
