@@ -2,8 +2,9 @@ import { Router, type Request, Response } from "express";
 import { generateCoverLetter, parseResumeText } from "./ai-service";
 import { z } from "zod";
 import { db } from "./db";
-import { users, jobs, applications, userExperience } from "@shared/schema";
-import { eq, and } from "drizzle-orm";
+import { users, jobs, applications, userExperience, swipes } from "@shared/schema";
+import { eq, and, not, inArray } from "drizzle-orm";
+import { rankJobsByMatch } from "./matching-service";
 
 const router = Router();
 
@@ -38,6 +39,50 @@ const updateProfileSchema = z.object({
   preferredSalary: z.string().optional(),
   preferredWorkType: z.string().optional(),
   nqfLevel: z.number().optional(),
+});
+
+// Get matched jobs for user (with smart ranking)
+router.get("/api/jobs/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    // Get user profile for matching
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Get already swiped job IDs
+    const swipedJobs = await db
+      .select({ jobId: swipes.jobId })
+      .from(swipes)
+      .where(eq(swipes.userId, userId));
+
+    const swipedJobIds = swipedJobs.map((s) => s.jobId);
+
+    // Get active jobs that haven't been swiped yet
+    let query = db.select().from(jobs).where(eq(jobs.isActive, true));
+
+    if (swipedJobIds.length > 0) {
+      query = query.where(not(inArray(jobs.id, swipedJobIds))) as any;
+    }
+
+    const availableJobs = await query.limit(50);
+
+    // Apply smart matching algorithm to rank jobs
+    const rankedJobs = rankJobsByMatch(user, availableJobs);
+
+    // Return top 20 best matches
+    res.json(rankedJobs.slice(0, 20));
+  } catch (error: any) {
+    console.error("Error fetching jobs:", error);
+    res.status(500).json({ error: error.message || "Failed to fetch jobs" });
+  }
 });
 
 // Helper function to check and update swipe limits
