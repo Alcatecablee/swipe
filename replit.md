@@ -1,15 +1,17 @@
-SwipeJob South Africa - AI-Powered Job Matching Platform
+# SwipeJob South Africa - AI-Powered Job Matching Platform
+
 A Tinder-style job application platform with AI auto-apply for the South African market. Built with React, Supabase, Express, and Groq AI.
 
-Architecture
+## Architecture
 Frontend: React + TypeScript + Vite + shadcn/ui + TailwindCSS
 Backend: Express.js with API routes for AI processing
 Database: Supabase PostgreSQL with Row Level Security
 Authentication: Supabase Auth (email/password + OAuth)
 AI Service: Groq (free tier) with Llama 3.3 70B model
 State Management: TanStack Query v5
-Current Features (MVP - October 2025)
-✅ Implemented (Sprint 1-6 Complete!)
+## Current Features (MVP - October 2025)
+
+### ✅ Implemented (Sprint 1-6 Complete!)
 Core Platform Features
 Swipe interface for job applications (apply/skip)
 User authentication with protected routes
@@ -82,49 +84,62 @@ Answer coaching - STAR method guidance & feedback
 ATS optimization - Keyword extraction for better ranking
 Batch processing - Max 10 applications at once
 Error handling - Comprehensive user feedback
-Database Schema
-users - User profiles with resume data, preferences, swipe limits, referral codes, Stripe integration
-jobs - Job listings with sector, location, skills, requirements
-applications - Application tracking with status, cover letters, AI processing flags
-swipes - Record of all swipe actions (apply/skip)
-user_experience - User work history and roles
-badges - Achievement badges (10 types: swipes, applications, profile, referrals)
-Security
+## Database Schema
+
+- **users** - User profiles with resume data, preferences, swipe limits, referral codes, Stripe integration
+- **jobs** - Job listings with sector, location, skills, requirements
+- **applications** - Application tracking with status, cover letters, AI processing flags
+- **swipes** - Record of all swipe actions (apply/skip)
+- **user_experience** - User work history and roles
+- **badges** - Achievement badges (10 types: swipes, applications, profile, referrals)
+
+## Security
 Row Level Security (RLS) enforced on all tables
 Direct Supabase client calls from frontend (no backend proxy)
 User sessions managed by Supabase Auth
 All data access scoped to authenticated user
-API Endpoints (Express Backend)
-Resume & Profile
-POST /api/parse-resume - AI resume parsing (Groq)
-POST /api/profile - Update user profile
-GET /api/profile/:userId - Get user profile
-Smart Matching & Swipes
-GET /api/jobs/:userId - Get ranked job matches (smart algorithm)
-GET /api/swipe-limits/:userId - Check remaining swipes
-POST /api/swipe - Create swipe (with limit enforcement & badge checks)
-Badges & Referrals
-GET /api/badges/:userId - Get user badges
-POST /api/apply-referral - Apply referral code for bonus swipes
-GET /api/referral-stats/:userId - Get referral statistics
-AI Auto-Apply & Interview Prep
-POST /api/generate-application-data - Generate ATS form data
-POST /api/extract-ats-keywords - Extract job keywords
-POST /api/generate-interview-questions - AI interview prep
-POST /api/interview-answer-suggestion - Get answer coaching
-POST /api/analyze-interview-answer - Practice answer feedback
-Cover Letters & Applications
-POST /api/generate-cover-letter - AI cover letter generation
-POST /api/batch-process - Batch process pending applications
-Important Notes
+## API Endpoints (Express Backend)
+
+### Resume & Profile
+
+- POST /api/parse-resume - AI resume parsing (Groq)
+- POST /api/profile - Update user profile
+- GET /api/profile/:userId - Get user profile
+### Smart Matching & Swipes
+
+- GET /api/jobs/:userId - Get ranked job matches (smart algorithm)
+- GET /api/swipe-limits/:userId - Check remaining swipes
+- POST /api/swipe - Create swipe (with limit enforcement & badge checks)
+
+### Badges & Referrals
+
+- GET /api/badges/:userId - Get user badges
+- POST /api/apply-referral - Apply referral code for bonus swipes
+- GET /api/referral-stats/:userId - Get referral statistics
+
+### AI Auto-Apply & Interview Prep
+
+- POST /api/generate-application-data - Generate ATS form data
+- POST /api/extract-ats-keywords - Extract job keywords
+- POST /api/generate-interview-questions - AI interview prep
+- POST /api/interview-answer-suggestion - Get answer coaching
+- POST /api/analyze-interview-answer - Practice answer feedback
+
+### Cover Letters & Applications
+
+- POST /api/generate-cover-letter - AI cover letter generation
+- POST /api/batch-process - Batch process pending applications
+
+## Important Notes
 AI Service: Groq API key required (GROQ_API_KEY)
 Supabase: Credentials in Replit Secrets (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
 Payment Gateway: Stripe integration ready (requires SA-compatible alternative like PayFast for South African users)
 SQL Setup: Schema in supabase-schema.sql, trigger in supabase-trigger.sql
 RLS Policies: Must be configured in Supabase for data security
 Column Naming: Database uses snake_case, frontend uses camelCase
-Enhanced Product Roadmap - Sorce-Inspired Vision
-🎯 IMMEDIATE PRIORITY - Phase 1 (Current Sprint)
+## Enhanced Product Roadmap - Sorce-Inspired Vision
+
+### 🎯 IMMEDIATE PRIORITY - Phase 1 (Current Sprint)
 Step 1: Enhanced Onboarding & Resume Upload
  Resume Upload Feature - PDF/Image upload with file validation
  Resume Parsing AI - Extract skills, experience, education from uploaded documents
@@ -167,14 +182,15 @@ Step 5: Referral & Gamification
  Profile Completion Score - Gamified profile building with progress bar
  Daily Streaks - Encourage daily engagement with streak tracking
  Leaderboard - Top referrers, most active users (optional)
-💎 Premium Features (Freemium Model)
-Free Tier
+### 💎 Premium Features (Freemium Model)
+
+**Free Tier:**
 50-100 swipes per day
 Basic AI cover letter generation
 Application tracking
 Email notifications
 Basic profile features
-Premium Tier (R99/month or $9.99/month)
+**Premium Tier (R99/month or $9.99/month):**
  Unlimited Swipes - No daily limits
  Advanced AI - A/B tested cover letters, interview coaching
  Priority Matching - Top of employer queue
