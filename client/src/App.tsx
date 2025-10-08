@@ -10,6 +10,7 @@ import LandingPage from "@/pages/LandingPage";
 import SwipePage from "@/pages/SwipePage";
 import ApplicationsPage from "@/pages/ApplicationsPage";
 import ProfilePage from "@/pages/ProfilePage";
+import DashboardPage from "@/pages/DashboardPage";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
 import OnboardingPage from "@/pages/OnboardingPage";
@@ -38,6 +39,11 @@ function Router() {
       <Route path="/profile">
         <ProtectedRoute>
           <ProfilePage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard">
+        <ProtectedRoute>
+          <DashboardPage />
         </ProtectedRoute>
       </Route>
       <Route path="/" component={LandingPage} />

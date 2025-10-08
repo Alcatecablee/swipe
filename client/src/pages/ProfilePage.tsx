@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import UserProfile from "@/components/UserProfile";
 import ThemeToggle from "@/components/ThemeToggle";
+import { ProfileCompletionWidget } from "@/components/ProfileCompletionWidget";
 import { useToast } from "@/hooks/use-toast";
 
 interface UserProfileData {
@@ -142,7 +143,11 @@ export default function ProfilePage() {
       </header>
 
       <main className="flex-1 container mx-auto px-4 py-6">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto space-y-6">
+          {profile && (
+            <ProfileCompletionWidget userId={profile.id} />
+          )}
+          
           {profile ? (
             <UserProfile
               userId={profile.id}
