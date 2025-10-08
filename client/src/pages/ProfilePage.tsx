@@ -35,8 +35,10 @@ export default function ProfilePage() {
 
   const { data: profile, isLoading, error } = useQuery<UserProfileData>({
     queryKey: ['profile', user?.id],
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!supabase,
     queryFn: async () => {
+      if (!supabase) throw new Error('Supabase not configured');
+
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('*')
@@ -59,7 +61,16 @@ export default function ProfilePage() {
         throw expError;
       }
 
-      return { ...userData, experience };
+      // Get resume data from user metadata
+      const resumeUrl = user?.user_metadata?.resume_url || null;
+      const resumeFileName = user?.user_metadata?.resume_file_name || null;
+
+      return { 
+        ...userData, 
+        experience,
+        resume_url: resumeUrl,
+        resume_file_name: resumeFileName
+      };
     },
   });
 
