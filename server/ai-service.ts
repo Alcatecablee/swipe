@@ -152,3 +152,75 @@ The message should be enthusiastic, professional, and highlight why they're a go
     throw new Error("Failed to generate application message");
   }
 }
+
+export async function parseResumeText(resumeText: string): Promise<any> {
+  const prompt = `Parse the following resume and extract structured information. Return ONLY a valid JSON object with these fields:
+{
+  "name": "Full Name",
+  "email": "email@example.com",
+  "phone": "+27 phone number",
+  "skills": ["skill1", "skill2", "skill3"],
+  "experience": ["role at company (duration)", "role at company (duration)"],
+  "education": "Highest qualification or education summary",
+  "summary": "Brief professional summary"
+}
+
+Resume text:
+${resumeText}
+
+Return ONLY the JSON object, no additional text or explanation.`;
+
+  try {
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert resume parser. Extract structured data from resumes and return valid JSON only. Be accurate and thorough.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.3,
+      max_tokens: 1000,
+    });
+
+    const content = completion.choices[0]?.message?.content;
+    
+    if (!content) {
+      throw new Error("AI returned empty response");
+    }
+
+    // Try to parse JSON from the response
+    try {
+      // Remove markdown code blocks if present
+      const jsonText = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const parsed = JSON.parse(jsonText);
+      return parsed;
+    } catch (parseError) {
+      console.error("Failed to parse AI response as JSON:", content);
+      // Return a basic parsed structure
+      return {
+        name: null,
+        email: null,
+        phone: null,
+        skills: [],
+        experience: [],
+        education: null,
+        summary: content.substring(0, 200),
+      };
+    }
+  } catch (error: any) {
+    console.error("Error parsing resume:", error);
+    
+    if (error.message?.includes("rate limit")) {
+      throw new Error("AI service rate limit reached. Please try again in a few moments.");
+    } else if (error.message?.includes("timeout")) {
+      throw new Error("AI service timed out. Please try again.");
+    } else {
+      throw new Error(error.message || "Failed to parse resume");
+    }
+  }
+}

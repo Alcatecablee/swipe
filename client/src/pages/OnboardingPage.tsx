@@ -27,7 +27,7 @@ interface ParsedResume {
 
 export default function OnboardingPage() {
   const [, setLocation] = useLocation();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [step, setStep] = useState<OnboardingStep>("welcome");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -42,10 +42,10 @@ export default function OnboardingPage() {
 
   const parseResumeMutation = useMutation({
     mutationFn: async (text: string) => {
-      return apiRequest<ParsedResume>("/api/parse-resume", {
-        method: "POST",
-        body: JSON.stringify({ resumeText: text }),
+      const response = await apiRequest("/api/parse-resume", "POST", {
+        resumeText: text,
       });
+      return response as ParsedResume;
     },
     onSuccess: (data) => {
       setParsedData(data);
@@ -67,10 +67,7 @@ export default function OnboardingPage() {
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest("/api/profile", {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      });
+      return await apiRequest("/api/profile", "PATCH", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/profile"] });

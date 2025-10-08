@@ -11,6 +11,7 @@ import ApplicationsPage from "@/pages/ApplicationsPage";
 import ProfilePage from "@/pages/ProfilePage";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
+import OnboardingPage from "@/pages/OnboardingPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +19,11 @@ function Router() {
     <Switch>
       <Route path="/login" component={LoginPage} />
       <Route path="/signup" component={SignupPage} />
+      <Route path="/onboarding">
+        <ProtectedRoute>
+          <OnboardingPage />
+        </ProtectedRoute>
+      </Route>
       <Route path="/app">
         <ProtectedRoute>
           <SwipePage />

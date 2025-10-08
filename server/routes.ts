@@ -1,5 +1,5 @@
 import { Router, type Request, Response } from "express";
-import { generateCoverLetter } from "./ai-service";
+import { generateCoverLetter, parseResumeText } from "./ai-service";
 import { z } from "zod";
 import { db } from "./db";
 import { users, jobs, applications, userExperience } from "@shared/schema";
@@ -16,6 +16,28 @@ const processApplicationSchema = z.object({
 
 const batchProcessSchema = z.object({
   userId: z.string().min(1),
+});
+
+const parseResumeSchema = z.object({
+  resumeText: z.string().min(10),
+});
+
+const updateProfileSchema = z.object({
+  userId: z.string().min(1),
+  name: z.string().optional(),
+  phone: z.string().optional(),
+  location: z.string().optional(),
+  skills: z.array(z.string()).optional(),
+  languages: z.array(z.string()).optional(),
+  education: z.string().optional(),
+  resumeText: z.string().optional(),
+  resumeFileName: z.string().optional(),
+  resumeUrl: z.string().optional(),
+  resumeUploadedAt: z.string().optional(),
+  preferredJobTitle: z.string().optional(),
+  preferredSalary: z.string().optional(),
+  preferredWorkType: z.string().optional(),
+  nqfLevel: z.number().optional(),
 });
 
 // Helper function to process a single application
@@ -216,6 +238,81 @@ router.post("/api/batch-process-applications", async (req: Request, res: Respons
     }
     
     res.status(500).json({ error: error.message || "Failed to batch process applications" });
+  }
+});
+
+// Parse resume using AI
+router.post("/api/parse-resume", async (req: Request, res: Response) => {
+  try {
+    const validated = parseResumeSchema.parse(req.body);
+    const { resumeText } = validated;
+
+    const parsedData = await parseResumeText(resumeText);
+
+    res.json(parsedData);
+  } catch (error: any) {
+    console.error("Error parsing resume:", error);
+    
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: "Invalid request data", details: error.errors });
+    }
+    
+    res.status(500).json({ error: error.message || "Failed to parse resume" });
+  }
+});
+
+// Update user profile
+router.patch("/api/profile", async (req: Request, res: Response) => {
+  try {
+    const validated = updateProfileSchema.parse(req.body);
+    const { userId, ...profileData } = validated;
+
+    // Remove undefined values
+    const cleanData = Object.fromEntries(
+      Object.entries(profileData).filter(([_, v]) => v !== undefined)
+    );
+
+    const [updatedUser] = await db
+      .update(users)
+      .set(cleanData)
+      .where(eq(users.id, userId))
+      .returning();
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json(updatedUser);
+  } catch (error: any) {
+    console.error("Error updating profile:", error);
+    
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: "Invalid request data", details: error.errors });
+    }
+    
+    res.status(500).json({ error: error.message || "Failed to update profile" });
+  }
+});
+
+// Get user profile
+router.get("/api/profile/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error: any) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ error: error.message || "Failed to fetch profile" });
   }
 });
 
