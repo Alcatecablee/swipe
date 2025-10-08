@@ -464,6 +464,10 @@ router.post("/api/swipe", async (req: Request, res: Response) => {
     // Increment swipe count
     await incrementSwipeCount(userId);
 
+    // Check for swipe badges
+    const { checkSwipeBadges, checkApplicationBadges } = await import("./badge-service");
+    const swipeBadges = await checkSwipeBadges(userId);
+
     // If applying, create application
     if (action === 'apply') {
       const { applications: applicationsTable } = await import("@shared/schema");
@@ -473,16 +477,22 @@ router.post("/api/swipe", async (req: Request, res: Response) => {
         status: 'pending',
       }).returning();
 
+      // Check for application badges
+      const appBadges = await checkApplicationBadges(userId);
+      const allNewBadges = [...swipeBadges, ...appBadges];
+
       return res.json({ 
         success: true, 
         remaining: limitInfo.remaining - 1,
-        applicationId: newApp.id 
+        applicationId: newApp.id,
+        newBadges: allNewBadges
       });
     }
 
     res.json({ 
       success: true, 
-      remaining: limitInfo.remaining - 1 
+      remaining: limitInfo.remaining - 1,
+      newBadges: swipeBadges
     });
   } catch (error: any) {
     console.error("Error creating swipe:", error);
@@ -598,6 +608,19 @@ router.get("/api/referral-stats/:userId", async (req: Request, res: Response) =>
   } catch (error: any) {
     console.error("Error getting referral stats:", error);
     res.status(500).json({ error: error.message || "Failed to get referral stats" });
+  }
+});
+
+// Get user badges
+router.get("/api/badges/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { getUserBadges } = await import("./badge-service");
+    const userBadges = await getUserBadges(userId);
+    res.json(userBadges);
+  } catch (error: any) {
+    console.error("Error fetching badges:", error);
+    res.status(500).json({ error: error.message || "Failed to fetch badges" });
   }
 });
 

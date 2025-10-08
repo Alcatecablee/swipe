@@ -76,12 +76,24 @@ export const swipes = pgTable("swipes", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Achievement badges
+export const badges = pgTable("badges", {
+  id: varchar("id").primaryKey().default('gen_random_uuid()'),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  badgeType: text("badge_type").notNull(), // "first_swipe", "10_applications", "profile_complete", etc.
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  iconName: text("icon_name").notNull(), // lucide icon name
+  earnedAt: timestamp("earned_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 export const insertJobSchema = createInsertSchema(jobs).omit({ id: true, createdAt: true, isActive: true });
 export const insertApplicationSchema = createInsertSchema(applications).omit({ id: true, appliedAt: true });
 export const insertUserExperienceSchema = createInsertSchema(userExperience).omit({ id: true, createdAt: true });
 export const insertSwipeSchema = createInsertSchema(swipes).omit({ id: true, createdAt: true });
+export const insertBadgeSchema = createInsertSchema(badges).omit({ id: true, earnedAt: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -94,3 +106,5 @@ export type UserExperience = typeof userExperience.$inferSelect;
 export type InsertUserExperience = z.infer<typeof insertUserExperienceSchema>;
 export type Swipe = typeof swipes.$inferSelect;
 export type InsertSwipe = z.infer<typeof insertSwipeSchema>;
+export type Badge = typeof badges.$inferSelect;
+export type InsertBadge = z.infer<typeof insertBadgeSchema>;
