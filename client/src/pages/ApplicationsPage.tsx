@@ -39,16 +39,30 @@ export default function ApplicationsPage() {
     },
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['applications'] });
-      toast({
-        title: "AI Processing Complete!",
-        description: `Successfully processed ${data.processed} applications with AI-generated cover letters.`,
-      });
+      
+      if (data.processed === 0) {
+        toast({
+          title: "No Applications to Process",
+          description: data.message || "All applications have already been processed.",
+        });
+      } else if (data.failed > 0) {
+        toast({
+          title: "Partially Completed",
+          description: `Processed ${data.processed} applications successfully. ${data.failed} failed.`,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "AI Processing Complete!",
+          description: `Successfully processed ${data.processed} applications with AI-generated cover letters.`,
+        });
+      }
     },
     onError: (error: Error) => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to process applications",
+        title: "Processing Failed",
+        description: error.message || "Failed to process applications. Please try again.",
       });
     },
   });

@@ -78,7 +78,7 @@ Format the letter with proper business letter structure but without addresses (w
       messages: [
         {
           role: "system",
-          content: "You are an expert career advisor and cover letter writer specializing in the South African job market. Write compelling, professional cover letters that help candidates stand out.",
+          content: "You are an expert career advisor and cover letter writer specializing in the South African job market. Write compelling, professional cover letters that help candidates stand out. Always write in a professional yet warm tone.",
         },
         {
           role: "user",
@@ -88,12 +88,32 @@ Format the letter with proper business letter structure but without addresses (w
       model: "llama-3.3-70b-versatile",
       temperature: 0.7,
       max_tokens: 800,
+      top_p: 0.9,
     });
 
-    return completion.choices[0]?.message?.content || "Unable to generate cover letter at this time.";
-  } catch (error) {
+    const content = completion.choices[0]?.message?.content;
+    
+    if (!content) {
+      throw new Error("AI returned empty response");
+    }
+
+    // Basic validation of generated content
+    if (content.length < 100) {
+      throw new Error("Generated cover letter is too short");
+    }
+
+    return content;
+  } catch (error: any) {
     console.error("Error generating cover letter:", error);
-    throw new Error("Failed to generate cover letter");
+    
+    // Provide more specific error messages
+    if (error.message?.includes("rate limit")) {
+      throw new Error("AI service rate limit reached. Please try again in a few moments.");
+    } else if (error.message?.includes("timeout")) {
+      throw new Error("AI service timed out. Please try again.");
+    } else {
+      throw new Error(error.message || "Failed to generate cover letter");
+    }
   }
 }
 
