@@ -48,7 +48,7 @@ The platform is built with a modern web stack:
     - POPIA consent UI for data protection.
 
 ## External Dependencies
-- **Supabase**: PostgreSQL database, Authentication, and Realtime services.
+- **Supabase**: PostgreSQL database, Authentication, Storage (requires `resumes` bucket setup), and Realtime services.
 - **Groq**: AI API for large language model (Llama 3.3 70B) processing.
 - **Stripe**: Payment gateway for premium subscriptions (future integration).
 - **PayFast**: South African-specific payment gateway (future integration).
