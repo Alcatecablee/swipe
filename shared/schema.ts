@@ -34,7 +34,10 @@ export const applications = pgTable("applications", {
   id: varchar("id").primaryKey().default('gen_random_uuid()'),
   userId: varchar("user_id").notNull().references(() => users.id),
   jobId: varchar("job_id").notNull().references(() => jobs.id),
-  status: text("status").notNull().default("pending"), // pending, reviewing, interview, accepted, rejected
+  status: text("status").notNull().default("pending"), // pending, reviewing, interview, accepted, rejected, auto_applied
+  coverLetter: text("cover_letter"),
+  applicationUrl: text("application_url"),
+  aiProcessed: boolean("ai_processed").default(false).notNull(),
   appliedAt: timestamp("applied_at").defaultNow().notNull(),
 });
 
