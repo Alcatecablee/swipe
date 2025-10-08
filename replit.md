@@ -127,3 +127,7 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - AI Auto-Apply generates Google search URLs (not actual company application links)
 - Backend API endpoints accept client-supplied userId (needs auth middleware)
 - No actual job application submission (just tracks intent + generates cover letter)
+
+
+SUPABASE_URL- https://evdwovhikctwcjddcpzz.supabase.co
+SUPABASE_ANON-yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2ZHdvdmhpa2N0d2NqZGRjcHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5Mzc0NzIsImV4cCI6MjA2NzUxMzQ3Mn0.BTNWHzz3d9lwUOM-CaYi1O5qlu9WgTj5VR3sxVVIiUU
