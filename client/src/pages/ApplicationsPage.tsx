@@ -1,11 +1,13 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import ApplicationCard from "@/components/ApplicationCard";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 
 interface ApplicationWithJob {
   id: string;
@@ -13,6 +15,9 @@ interface ApplicationWithJob {
   job_id: string;
   status: string;
   applied_at: string;
+  ai_processed: boolean;
+  cover_letter?: string;
+  application_url?: string;
   jobs: {
     id: string;
     title: string;
@@ -25,6 +30,28 @@ interface ApplicationWithJob {
 export default function ApplicationsPage() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const { toast } = useToast();
+
+  const autoProcessMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/batch-process-applications", { userId: user!.id });
+      return await res.json();
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['applications'] });
+      toast({
+        title: "AI Processing Complete!",
+        description: `Successfully processed ${data.processed} applications with AI-generated cover letters.`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to process applications",
+      });
+    },
+  });
 
   const { data: applications, isLoading, error } = useQuery<ApplicationWithJob[]>({
     queryKey: ['applications', user?.id],
@@ -101,6 +128,29 @@ export default function ApplicationsPage() {
 
       <main className="flex-1 container mx-auto px-4 py-6">
         <div className="max-w-3xl mx-auto space-y-4">
+          {applications && applications.length > 0 && (
+            <div className="bg-card border rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    AI Auto-Apply
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Let AI generate professional cover letters and application links for pending applications
+                  </p>
+                </div>
+                <Button
+                  onClick={() => autoProcessMutation.mutate()}
+                  disabled={autoProcessMutation.isPending}
+                  data-testid="button-ai-process"
+                >
+                  {autoProcessMutation.isPending ? "Processing..." : "Process Applications"}
+                </Button>
+              </div>
+            </div>
+          )}
+          
           {applications && applications.length > 0 ? (
             applications.map((application) => (
               <ApplicationCard
@@ -110,6 +160,9 @@ export default function ApplicationsPage() {
                 company={application.jobs.company}
                 status={application.status as any}
                 appliedAt={new Date(application.applied_at)}
+                coverLetter={application.cover_letter}
+                applicationUrl={application.application_url}
+                aiProcessed={application.ai_processed}
               />
             ))
           ) : (
