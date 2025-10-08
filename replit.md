@@ -103,6 +103,18 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - ⏳ **Touch gestures** - Swipe cards currently use buttons, native touch gestures pending
 - ⏳ **Performance optimization** - Low-end device testing and optimization pending
 
+#### 🇿🇦 Sprint 9: South African Local Features (IN PROGRESS)
+- ✅ **SA Constants library** - Provinces, cities, NQF levels, 11 official languages, work authorization types
+- ✅ **NQF matching algorithm** - Enhanced smart matching to include NQF level requirements (10% weight)
+- ✅ **POPIA compliance notice** - Data protection notice included in constants
+- ✅ **Location data** - SA provinces (9) and major cities (15+) with province mapping
+- ⏳ **Multi-language UI** - i18n infrastructure for 11 official languages pending
+- ⏳ **Province/city filtering** - Frontend UI to use SA location constants pending
+- ⏳ **Transport cost calculator** - Estimate commute costs pending
+- ⏳ **WhatsApp integration** - Job alerts via WhatsApp pending
+- ⏳ **PayFast payment** - South African payment gateway integration pending
+- ⏳ **Gig/contract work support** - Job type categorization pending
+
 ### 🔧 AI Capabilities Summary
 - **Resume parsing** - Extracts structured data from documents
 - **Cover letter generation** - Contextual, professional cover letters

@@ -8,6 +8,7 @@ interface MatchScore {
   experienceMatch: boolean;
   salaryMatch: boolean;
   locationMatch: boolean;
+  nqfMatch: boolean;
 }
 
 /**
@@ -97,6 +98,23 @@ export function checkLocationMatch(
 }
 
 /**
+ * Check if user's NQF level meets or exceeds job requirements (Sprint 9 - SA Features)
+ */
+export function checkNQFMatch(
+  userNQFLevel: number | null,
+  jobNQFLevel: number | null
+): boolean {
+  // If no job requirement, it's a match
+  if (!jobNQFLevel) return true;
+  
+  // If no user NQF but job requires it, not a match
+  if (!userNQFLevel) return false;
+  
+  // User's NQF level must meet or exceed job requirement
+  return userNQFLevel >= jobNQFLevel;
+}
+
+/**
  * Calculate comprehensive match score for a job based on user profile
  */
 export function calculateJobMatchScore(user: User, job: Job): MatchScore {
@@ -125,12 +143,20 @@ export function calculateJobMatchScore(user: User, job: Job): MatchScore {
     job.location
   );
 
+  // Check NQF level match (Sprint 9 - SA Features)
+  const nqfMatch = checkNQFMatch(
+    user.nqfLevel || null,
+    job.nqfLevel || null
+  );
+
   // Calculate weighted final score
-  let finalScore = skillMatch.score * 0.6; // Skills are 60% of score
+  // Skills: 55%, Experience: 15%, Salary: 10%, Location: 10%, NQF: 10%
+  let finalScore = skillMatch.score * 0.55; // Skills are 55% of score
 
   if (experienceMatch) finalScore += 15;
-  if (salaryMatch) finalScore += 15;
+  if (salaryMatch) finalScore += 10;
   if (locationMatch) finalScore += 10;
+  if (nqfMatch) finalScore += 10;
 
   return {
     jobId: job.id,
@@ -140,6 +166,7 @@ export function calculateJobMatchScore(user: User, job: Job): MatchScore {
     experienceMatch,
     salaryMatch,
     locationMatch,
+    nqfMatch,
   };
 }
 
