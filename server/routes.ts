@@ -445,4 +445,115 @@ router.post("/api/swipe", async (req: Request, res: Response) => {
   }
 });
 
+// Generate referral code
+function generateReferralCode(userId: string): string {
+  return `SJ${userId.substring(0, 6).toUpperCase()}`;
+}
+
+// Apply referral code
+router.post("/api/apply-referral", async (req: Request, res: Response) => {
+  try {
+    const { userId, referralCode } = req.body;
+
+    if (!userId || !referralCode) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Find user with this referral code
+    const [referrer] = await db
+      .select()
+      .from(users)
+      .where(eq(users.referralCode, referralCode))
+      .limit(1);
+
+    if (!referrer) {
+      return res.status(404).json({ error: "Invalid referral code" });
+    }
+
+    if (referrer.id === userId) {
+      return res.status(400).json({ error: "Cannot use your own referral code" });
+    }
+
+    // Check if user already used a referral
+    const [currentUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (currentUser.referredBy) {
+      return res.status(400).json({ error: "You've already used a referral code" });
+    }
+
+    // Apply referral: Give both users bonus swipes
+    await db
+      .update(users)
+      .set({
+        dailySwipeLimit: (currentUser.dailySwipeLimit || 50) + 25, // +25 bonus swipes
+        referredBy: referralCode,
+      })
+      .where(eq(users.id, userId));
+
+    // Give referrer bonus swipes
+    await db
+      .update(users)
+      .set({
+        dailySwipeLimit: (referrer.dailySwipeLimit || 50) + 10, // +10 bonus for referrer
+      })
+      .where(eq(users.id, referrer.id));
+
+    res.json({ 
+      success: true,
+      bonusSwipes: 25,
+      message: "Referral applied! You received 25 bonus swipes!" 
+    });
+  } catch (error: any) {
+    console.error("Error applying referral:", error);
+    res.status(500).json({ error: error.message || "Failed to apply referral code" });
+  }
+});
+
+// Get referral stats
+router.get("/api/referral-stats/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Generate referral code if not exists
+    if (!user.referralCode) {
+      const newCode = generateReferralCode(userId);
+      await db
+        .update(users)
+        .set({ referralCode: newCode })
+        .where(eq(users.id, userId));
+      
+      user.referralCode = newCode;
+    }
+
+    // Count referrals
+    const referrals = await db
+      .select()
+      .from(users)
+      .where(eq(users.referredBy, user.referralCode!));
+
+    res.json({
+      referralCode: user.referralCode,
+      totalReferrals: referrals.length,
+      bonusSwipesEarned: referrals.length * 10,
+    });
+  } catch (error: any) {
+    console.error("Error getting referral stats:", error);
+    res.status(500).json({ error: error.message || "Failed to get referral stats" });
+  }
+});
+
 export default router;
