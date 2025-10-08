@@ -5,6 +5,12 @@ import { db } from "./db";
 import { users, jobs, applications, userExperience, swipes } from "@shared/schema";
 import { eq, and, not, inArray } from "drizzle-orm";
 import { rankJobsByMatch } from "./matching-service";
+import Stripe from "stripe";
+
+// Initialize Stripe (reference: blueprint:javascript_stripe)
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-11-20.acacia" })
+  : null;
 
 const router = Router();
 
@@ -621,6 +627,224 @@ router.get("/api/badges/:userId", async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Error fetching badges:", error);
     res.status(500).json({ error: error.message || "Failed to fetch badges" });
+  }
+});
+
+// Auto-apply: Generate application data for external ATS
+router.post("/api/generate-application-data", async (req: Request, res: Response) => {
+  try {
+    const { userId, jobId } = req.body;
+
+    if (!userId || !jobId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
+
+    if (!user || !job) {
+      return res.status(404).json({ error: "User or job not found" });
+    }
+
+    const { generateApplicationData } = await import("./auto-apply-service");
+    const applicationData = await generateApplicationData(user, job);
+
+    res.json(applicationData);
+  } catch (error: any) {
+    console.error("Error generating application data:", error);
+    res.status(500).json({ error: error.message || "Failed to generate application data" });
+  }
+});
+
+// Auto-apply: Extract ATS keywords from job
+router.post("/api/extract-ats-keywords", async (req: Request, res: Response) => {
+  try {
+    const { jobId } = req.body;
+
+    if (!jobId) {
+      return res.status(400).json({ error: "Missing jobId" });
+    }
+
+    const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
+
+    if (!job) {
+      return res.status(404).json({ error: "Job not found" });
+    }
+
+    const { extractATSKeywords } = await import("./auto-apply-service");
+    const keywords = await extractATSKeywords(job.description);
+
+    res.json(keywords);
+  } catch (error: any) {
+    console.error("Error extracting ATS keywords:", error);
+    res.status(500).json({ error: error.message || "Failed to extract keywords" });
+  }
+});
+
+// Interview prep: Generate practice questions
+router.post("/api/generate-interview-questions", async (req: Request, res: Response) => {
+  try {
+    const { userId, jobId } = req.body;
+
+    if (!userId || !jobId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
+
+    if (!user || !job) {
+      return res.status(404).json({ error: "User or job not found" });
+    }
+
+    const { generateInterviewQuestions } = await import("./interview-prep-service");
+    const questions = await generateInterviewQuestions(user, job);
+
+    res.json(questions);
+  } catch (error: any) {
+    console.error("Error generating interview questions:", error);
+    res.status(500).json({ error: error.message || "Failed to generate questions" });
+  }
+});
+
+// Interview prep: Get answer suggestion
+router.post("/api/interview-answer-suggestion", async (req: Request, res: Response) => {
+  try {
+    const { userId, jobId, question } = req.body;
+
+    if (!userId || !jobId || !question) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
+
+    if (!user || !job) {
+      return res.status(404).json({ error: "User or job not found" });
+    }
+
+    const { generateAnswerSuggestion } = await import("./interview-prep-service");
+    const suggestion = await generateAnswerSuggestion(question, user, job);
+
+    res.json(suggestion);
+  } catch (error: any) {
+    console.error("Error generating answer suggestion:", error);
+    res.status(500).json({ error: error.message || "Failed to generate suggestion" });
+  }
+});
+
+// Interview prep: Analyze practice answer
+router.post("/api/analyze-interview-answer", async (req: Request, res: Response) => {
+  try {
+    const { jobId, question, userAnswer } = req.body;
+
+    if (!jobId || !question || !userAnswer) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
+
+    if (!job) {
+      return res.status(404).json({ error: "Job not found" });
+    }
+
+    const { analyzeInterviewAnswer } = await import("./interview-prep-service");
+    const feedback = await analyzeInterviewAnswer(question, userAnswer, job);
+
+    res.json(feedback);
+  } catch (error: any) {
+    console.error("Error analyzing interview answer:", error);
+    res.status(500).json({ error: error.message || "Failed to analyze answer" });
+  }
+});
+
+// Premium subscription endpoint (reference: blueprint:javascript_stripe)
+router.post("/api/create-subscription", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "Missing userId" });
+    }
+
+    if (!stripe) {
+      return res.status(500).json({ error: "Stripe not configured. Please add STRIPE_SECRET_KEY to environment." });
+    }
+
+    // Get user
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // If user already has subscription, return existing
+    if (user.stripeSubscriptionId) {
+      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      res.json({
+        subscriptionId: subscription.id,
+        clientSecret: (subscription.latest_invoice as any)?.payment_intent?.client_secret,
+      });
+      return;
+    }
+
+    // Create Stripe customer if doesn't exist
+    let customerId = user.stripeCustomerId;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        name: user.name || undefined,
+      });
+      customerId = customer.id;
+
+      // Update user with Stripe customer ID
+      await db
+        .update(users)
+        .set({ stripeCustomerId: customerId })
+        .where(eq(users.id, userId));
+    }
+
+    // Create subscription (R399/month for South African market)
+    const subscription = await stripe.subscriptions.create({
+      customer: customerId,
+      items: [{
+        price_data: {
+          currency: 'zar', // South African Rand
+          product_data: {
+            name: 'SwipeJob Premium',
+            description: 'Unlimited swipes, priority matching, AI auto-apply',
+          },
+          unit_amount: 39900, // R399 in cents
+          recurring: {
+            interval: 'month',
+          },
+        },
+      }],
+      payment_behavior: 'default_incomplete',
+      payment_settings: { save_default_payment_method: 'on_subscription' },
+      expand: ['latest_invoice.payment_intent'],
+    });
+
+    // Update user with subscription ID
+    await db
+      .update(users)
+      .set({ 
+        stripeSubscriptionId: subscription.id,
+        isPremium: true,
+      })
+      .where(eq(users.id, userId));
+
+    res.json({
+      subscriptionId: subscription.id,
+      clientSecret: (subscription.latest_invoice as any)?.payment_intent?.client_secret,
+    });
+  } catch (error: any) {
+    console.error("Error creating subscription:", error);
+    res.status(500).json({ error: error.message || "Failed to create subscription" });
   }
 });
 
