@@ -6,7 +6,7 @@ import JobCard from "@/components/JobCard";
 import FilterDrawer from "@/components/FilterDrawer";
 import ThemeToggle from "@/components/ThemeToggle";
 import ApplicationTemplateDialog from "@/components/ApplicationTemplateDialog";
-import { User, BarChart3 } from "lucide-react";
+import { User, BarChart3, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
@@ -237,6 +237,15 @@ export default function SwipePage() {
           </div>
           <div className="flex items-center gap-2">
             <FilterDrawer />
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full"
+              onClick={() => setLocation("/dashboard")}
+              data-testid="button-dashboard"
+            >
+              <LayoutDashboard className="w-5 h-5" />
+            </Button>
             <Button
               variant="outline"
               size="icon"

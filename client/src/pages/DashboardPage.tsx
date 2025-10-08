@@ -19,6 +19,7 @@ import {
   XCircle,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { InterviewScheduler } from "@/components/InterviewScheduler";
 import type { UserAnalytics } from "@shared/schema";
 
 interface ApplicationStats {
@@ -278,6 +279,11 @@ export default function DashboardPage() {
               </div>
             </div>
           </Card>
+
+          {/* Interview Scheduler */}
+          {user?.id && (
+            <InterviewScheduler userId={user.id} />
+          )}
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
