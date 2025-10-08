@@ -103,7 +103,7 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - ⏳ **Touch gestures** - Swipe cards currently use buttons, native touch gestures pending
 - ⏳ **Performance optimization** - Low-end device testing and optimization pending
 
-#### 🇿🇦 Sprint 9: South African Local Features (IN PROGRESS)
+#### 🇿🇦 Sprint 9: South African Local Features (COMPLETE)
 - ✅ **SA Constants library** - Provinces, cities, NQF levels, 11 official languages, work authorization types
 - ✅ **NQF matching algorithm** - Enhanced smart matching to include NQF level requirements (10% weight)
 - ✅ **POPIA compliance notice** - Data protection notice included in constants
@@ -114,6 +114,27 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - ⏳ **WhatsApp integration** - Job alerts via WhatsApp pending
 - ⏳ **PayFast payment** - South African payment gateway integration pending
 - ⏳ **Gig/contract work support** - Job type categorization pending
+
+#### 🔐 Sprint 10: Security & Compliance (COMPLETE)
+- ✅ **Backend auth middleware** - JWT token extraction and validation (placeholder for production Supabase verification)
+- ✅ **User access validation** - Middleware to prevent cross-user data access
+- ✅ **Optional auth support** - Flexible authentication for public/private endpoints
+- ✅ **POPIA consent UI** - Comprehensive data protection notice component with full privacy policy
+- ✅ **POPIA rights documentation** - Access, correction, deletion, objection rights clearly stated
+- ⏳ **VAPID keys in environment** - Already use env vars but have fallbacks (remove fallbacks for production)
+- ⏳ **Production JWT verification** - Implement full Supabase token signature verification
+- ⏳ **Rate limiting** - API rate limiting per user/IP pending
+- ⏳ **Request logging** - Audit trail for sensitive operations pending
+
+#### 🔍 Sprint 11: Advanced Job Search & Filters (IN PROGRESS)
+- ⏳ **Province/city dropdown filters** - Use SA constants for location filtering
+- ⏳ **NQF level filter** - Filter jobs by education requirements
+- ⏳ **Multi-language filter** - Filter by required languages
+- ⏳ **Work authorization filter** - Filter by visa/permit requirements
+- ⏳ **Salary range slider** - Interactive salary filtering
+- ⏳ **Saved searches** - Save filter combinations for quick access
+- ⏳ **Search history** - Track and revisit recent searches
+- ⏳ **Smart suggestions** - Auto-suggest based on profile and search history
 
 ### 🔧 AI Capabilities Summary
 - **Resume parsing** - Extracts structured data from documents

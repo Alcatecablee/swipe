@@ -16,8 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, MapPin, Languages, GraduationCap, Briefcase } from "lucide-react";
 import { useState } from "react";
+import { SA_PROVINCES, SA_MAJOR_CITIES, NQF_LEVELS, SA_LANGUAGES, SA_WORK_AUTH } from "@shared/sa-constants";
 
 const SECTORS = [
   "Tech & IT",
@@ -28,17 +29,6 @@ const SECTORS = [
   "Finance",
   "Retail",
   "Agriculture",
-];
-
-const LOCATIONS = [
-  "Cape Town",
-  "Johannesburg",
-  "Durban",
-  "Pretoria",
-  "Port Elizabeth",
-  "Soweto",
-  "Khayelitsha",
-  "Remote",
 ];
 
 const SKILLS = [
@@ -57,16 +47,19 @@ const SKILLS = [
 export default function FilterDrawer() {
   const [open, setOpen] = useState(false);
   const [sector, setSector] = useState<string>("");
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [province, setProvince] = useState<string>("");
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [salaryRange, setSalaryRange] = useState([0, 100000]);
   const [nqfLevel, setNqfLevel] = useState<string>("");
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  const [workAuth, setWorkAuth] = useState<string>("");
 
-  const toggleLocation = (location: string) => {
-    setSelectedLocations((prev) =>
-      prev.includes(location)
-        ? prev.filter((l) => l !== location)
-        : [...prev, location]
+  const toggleCity = (city: string) => {
+    setSelectedCities((prev) =>
+      prev.includes(city)
+        ? prev.filter((c) => c !== city)
+        : [...prev, city]
     );
   };
 
@@ -76,23 +69,35 @@ export default function FilterDrawer() {
     );
   };
 
+  const toggleLanguage = (language: string) => {
+    setSelectedLanguages((prev) =>
+      prev.includes(language) ? prev.filter((l) => l !== language) : [...prev, language]
+    );
+  };
+
   const handleApply = () => {
     console.log("Filters applied:", {
       sector,
-      selectedLocations,
+      province,
+      selectedCities,
       selectedSkills,
       salaryRange,
       nqfLevel,
+      selectedLanguages,
+      workAuth,
     });
     setOpen(false);
   };
 
   const handleReset = () => {
     setSector("");
-    setSelectedLocations([]);
+    setProvince("");
+    setSelectedCities([]);
     setSelectedSkills([]);
     setSalaryRange([0, 100000]);
     setNqfLevel("");
+    setSelectedLanguages([]);
+    setWorkAuth("");
   };
 
   return (
