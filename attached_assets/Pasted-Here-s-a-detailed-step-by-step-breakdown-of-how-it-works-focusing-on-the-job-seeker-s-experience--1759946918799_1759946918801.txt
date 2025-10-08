@@ -1,0 +1,38 @@
+Here's a detailed, step-by-step breakdown of how it works, focusing on the job seeker's experience (the primary user flow). The process is designed to be mobile-first, low-effort, and focused on quick matches.Step 1: Download and Sign Up (Account Creation)Access the Platform: Download the Sorce app from the Apple App Store or Google Play Store, or visit sorce.jobs on a web browser. No initial payment is required—it's freemium, with basic features free and premium upgrades available.
+Create an Account: Tap "Sign Up" and provide basic info like your email, phone number, or sign in via Google/Apple/LinkedIn for faster onboarding. You'll need to verify your email or phone via a one-time code.
+Upload Your Resume: This is the core setup step. Upload a PDF or image of your resume (or paste text). The AI parses it to extract key details like skills, experience, education, work history, and preferences (e.g., location, salary range, job type). Sorce uses this to personalize recommendations and generate applications.Tip: Ensure your resume is ATS-friendly (simple formatting) for accurate parsing. You can edit extracted info manually if needed.
+Set Preferences: Answer quick prompts for filters like job title (e.g., "software engineer"), location (remote/hybrid/on-site), salary, seniority level, and industry. This helps the "Smart Matching" algorithm curate your feed.
+Privacy Note: Data is handled securely per the app's policy, with options to control sharing. You're giving consent for the AI to use your info for applications.
+
+This step takes 2-5 minutes and creates your "Sorce Passport"—a profile hub that connects you to daily job opportunities.Step 2: Browse and Swipe on Jobs (Discovery Phase)Enter the Swipe Feed: Once set up, you're dropped into a Tinder-like interface: a stack of job cards, each showing a preview like company name, job title, location, salary estimate (if available), and key requirements (e.g., "3+ years Python experience").
+Gamified Swiping:Swipe Right (Like/Apply): If it matches your interests, swipe right. This triggers an instant application—no further action needed from you. The AI agent kicks in immediately (see Step 3).
+Swipe Left (Skip): Dismiss it if it's not a fit; it won't reappear unless you adjust filters.
+Smart Matching in Action: Jobs are algorithmically suggested based on your resume, past swipes, and preferences. It prioritizes high-fit roles to avoid "spam" applications, using factors like skill overlap, company ratings, and recency. You can apply filters (e.g., by salary, remote-only) or search keywords to refine the feed.
+Daily Limits and Bonuses: Free users get a set number of swipes per day (e.g., 50-100, based on user reports); premium unlocks unlimited. Earn extra swipes via referrals—invite friends for bonus credits.
+Pace: Users typically swipe through 20-50 jobs per session, making it addictive and quick (under 10 minutes).
+
+This phase emphasizes fun and efficiency, turning passive browsing into active, low-commitment exploration.Step 3: AI-Powered Application Submission (Automation Phase)Instant Trigger: On a right swipe, the AI agent automatically submits your application to the company's actual career portal (e.g., Greenhouse, Lever, or custom sites). It doesn't just track— it fills and submits on your behalf.
+What the AI Handles:Form Filling: Pulls data from your resume to auto-complete fields like name, contact info, work history, and education. It adapts to site-specific questions (e.g., "Years of experience?") using parsed resume data.
+Cover Letter Generation: Creates a tailored, personalized cover letter (1/2 to 1 page) highlighting why you're a fit. It matches your skills to the job description (e.g., "Your 3 years at XYZ align perfectly with our need for React expertise") and can incorporate company research. You can preview/edit before submission or set defaults for tone (professional, enthusiastic).
+Question Responses: For custom questions (e.g., "Describe your Azure experience"), the AI generates relevant answers based on your resume. (Note: Early bugs like irrelevant responses have been patched in updates.)
+Personalization Level: Cover letters and responses are semi-custom—AI uses your resume as a base but pulls job-specific keywords for better ATS compatibility and recruiter appeal. Premium users get more advanced tailoring (e.g., A/B testing versions).
+Confirmation: You get an immediate in-app notification: "Applied! Cover letter sent." No waiting for manual uploads.
+Edge Cases: If a site requires human verification (e.g., CAPTCHA), the app notifies you to complete it manually. Sorce covers 1,000+ ATS systems for broad compatibility.
+
+This is the "magic" step—eliminating the 30-60 minutes per application drudgery, with users reporting 10x faster applying.Step 4: Track Progress and Get Updates (Management Phase)Dashboard Access: View your "Active Applications" tab for a real-time overview: pending, submitted, viewed by employer, or responded.
+Notifications: Push alerts for key events:Application submitted/confirmed.
+Employer views your profile (e.g., "Twitch recruiter opened your app").
+Interview invites or rejections.
+Follow-ups (e.g., "Nudge this app?").
+Tracking Tools: Sort by status, company, or date. See AI-generated summaries like "80% skill match" or suggested next steps (e.g., "Prep for behavioral questions").
+Reapplication Option: If a job reappears (e.g., due to updates), you can reswipe with refined AI outputs.
+
+Step 5: Interviews, Offers, and Iteration (Outcome Phase)Prepare and Respond: When an interview lands (users report hundreds daily across the platform), use in-app tools like interview prep tips or resume tweaks. Respond to invites directly via the app.
+Feedback Loop: Rate your matches post-outcome (e.g., "Landed interview—great fit!"). This trains the AI for better future suggestions.
+Success Metrics: Users have secured roles at top firms; the platform claims faster timelines (e.g., interviews in days vs. weeks).
+Premium Upgrades: For $9.99/month (or similar), unlock unlimited swipes, advanced AI (e.g., interview coaching), priority matching, and analytics (e.g., "Your apps convert 25% better in tech").
+
+For Employers (Quick Note)While job seekers drive the platform, employers post jobs via integrations or partnerships. They get streamlined candidate pipelines, with Sorce filtering for quality (e.g., no low-fit spam). Premium employer features include boosted visibility and analytics.Potential Limitations and TipsBugs/Accuracy: Early versions had swipe glitches or off-base AI responses; updates (as of Oct 2025) have improved this.
+Best Practices: Update your resume often, use specific filters, and combine with networking (e.g., LinkedIn). It's U.S.-focused but expanding globally.
+Monetization: Free tier suffices for casual use; premium for heavy hunters.
+
