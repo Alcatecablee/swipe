@@ -7,11 +7,29 @@ import { eq, and, not, inArray, desc } from "drizzle-orm";
 import { rankJobsByMatch } from "./matching-service";
 import Stripe from "stripe";
 import { initializeStorageBucket } from "./supabase-admin";
+import multer from "multer";
+import { processResumeFile } from "./resume-processor";
 
 // Initialize Stripe (reference: blueprint:javascript_stripe)
 const stripe = process.env.STRIPE_SECRET_KEY 
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-09-30.clover" })
   : null;
+
+// Configure multer for file uploads (memory storage)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB max
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only PDF and images are allowed.'));
+    }
+  },
+});
 
 const router = Router();
 
@@ -369,6 +387,67 @@ router.post("/api/parse-resume", async (req: Request, res: Response) => {
     }
     
     res.status(500).json({ error: error.message || "Failed to parse resume" });
+  }
+});
+
+// Upload and process resume file (PDF/Image)
+router.post("/api/upload-resume", upload.single('resume'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const userId = req.body.userId;
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
+
+    // Initialize storage bucket if needed
+    await initializeStorageBucket('resumes');
+
+    // Upload file to Supabase storage
+    const fileExt = req.file.originalname.split('.').pop() || 'pdf';
+    const fileName = `${userId}/${Date.now()}.${fileExt}`;
+    
+    const supabase = await import('./supabase-admin').then(m => m.supabaseAdmin);
+    let resumeUrl = '';
+
+    if (supabase) {
+      const { error: uploadError } = await supabase.storage
+        .from('resumes')
+        .upload(fileName, req.file.buffer, {
+          contentType: req.file.mimetype,
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) {
+        console.error('Supabase upload error:', uploadError);
+      } else {
+        const { data: { publicUrl } } = supabase.storage
+          .from('resumes')
+          .getPublicUrl(fileName);
+        resumeUrl = publicUrl;
+      }
+    }
+
+    // Extract text from PDF or image
+    const resumeText = await processResumeFile(req.file.buffer, req.file.mimetype);
+
+    // Parse the extracted text using AI
+    const parsedData = await parseResumeText(resumeText);
+
+    // Return both the text and parsed data
+    res.json({
+      resumeText,
+      parsedData,
+      fileName: req.file.originalname,
+      mimeType: req.file.mimetype,
+      resumeUrl: resumeUrl || undefined,
+    });
+  } catch (error: any) {
+    console.error("Error processing resume file:", error);
+    res.status(500).json({ error: error.message || "Failed to process resume file" });
   }
 });
 
