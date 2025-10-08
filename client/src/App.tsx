@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import LandingPage from "@/pages/LandingPage";
 import SwipePage from "@/pages/SwipePage";
 import ApplicationsPage from "@/pages/ApplicationsPage";
@@ -52,6 +53,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <PWAInstallPrompt />
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>

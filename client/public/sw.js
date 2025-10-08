@@ -1,4 +1,86 @@
-// Service Worker for Push Notifications - Sprint 7
+// Service Worker for Push Notifications & PWA Offline Support - Sprint 7 & 8
+
+const CACHE_NAME = 'swipejob-v1';
+const RUNTIME_CACHE = 'swipejob-runtime-v1';
+
+// Assets to cache on install
+const STATIC_ASSETS = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png'
+];
+
+// Install event - cache static assets
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
+  );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames
+          .filter(name => name !== CACHE_NAME && name !== RUNTIME_CACHE)
+          .map(name => caches.delete(name))
+      );
+    })
+    .then(() => self.clients.claim())
+  );
+});
+
+// Fetch event - serve from cache with network fallback
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests
+  if (request.method !== 'GET') {
+    return;
+  }
+
+  // API requests - network first, then cache
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      caches.open(RUNTIME_CACHE).then(cache => {
+        return fetch(request)
+          .then(response => {
+            // Cache successful responses for jobs and profiles
+            if (response.ok && (url.pathname.includes('/jobs') || url.pathname.includes('/profile'))) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          })
+          .catch(() => cache.match(request))
+      })
+    );
+    return;
+  }
+
+  // Static assets - cache first, then network
+  event.respondWith(
+    caches.match(request)
+      .then(cached => {
+        if (cached) {
+          return cached;
+        }
+        return caches.open(RUNTIME_CACHE).then(cache => {
+          return fetch(request).then(response => {
+            if (response.ok) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          });
+        });
+      })
+  );
+});
 
 self.addEventListener('push', function(event) {
   if (!event.data) {

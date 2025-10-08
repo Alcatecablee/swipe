@@ -92,6 +92,17 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - ⏳ **Email notification system** - Not implemented (pending)
 - ⏳ **VAPID keys externalization** - Currently hardcoded, needs environment variables (security improvement)
 
+#### 📱 Sprint 8: Mobile Optimization & PWA (FOUNDATION COMPLETE)
+- ✅ **PWA manifest** - Configured with app metadata, icons, theme colors
+- ✅ **Service worker enhancements** - Offline caching with cache-first (static) and network-first (API) strategies
+- ✅ **Install/activate/fetch handlers** - Full PWA lifecycle management
+- ✅ **PWA install prompt** - Custom UI with user dismissal tracking
+- ✅ **Mobile meta tags** - Apple touch icons, viewport settings, theme color
+- ⏳ **Icon assets** - Manifest configured but actual icon files (72px-512px) need generation
+- ⏳ **Enhanced offline support** - Needs Vite bundle pre-caching and navigation fallback for true offline launch
+- ⏳ **Touch gestures** - Swipe cards currently use buttons, native touch gestures pending
+- ⏳ **Performance optimization** - Low-end device testing and optimization pending
+
 ### 🔧 AI Capabilities Summary
 - **Resume parsing** - Extracts structured data from documents
 - **Cover letter generation** - Contextual, professional cover letters
