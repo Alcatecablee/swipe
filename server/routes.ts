@@ -3,7 +3,7 @@ import { generateCoverLetter, parseResumeText } from "./ai-service";
 import { z } from "zod";
 import { db } from "./db";
 import { users, jobs, applications, userExperience, swipes } from "@shared/schema";
-import { eq, and, not, inArray } from "drizzle-orm";
+import { eq, and, not, inArray, desc } from "drizzle-orm";
 import { rankJobsByMatch } from "./matching-service";
 import Stripe from "stripe";
 
@@ -483,9 +483,40 @@ router.post("/api/swipe", async (req: Request, res: Response) => {
         status: 'pending',
       }).returning();
 
+      // Get job details for notification
+      const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
+
+      // Send notification about successful application
+      if (job) {
+        const { createAndSendNotification } = await import("./push-notification-service");
+        await createAndSendNotification(
+          userId,
+          "application_status",
+          "Application Submitted!",
+          `Your application for ${job.title} at ${job.company} has been submitted successfully.`,
+          `/applications/${newApp.id}`,
+          newApp.id,
+          jobId
+        ).catch(err => console.error("Failed to send application notification:", err));
+      }
+
       // Check for application badges
       const appBadges = await checkApplicationBadges(userId);
       const allNewBadges = [...swipeBadges, ...appBadges];
+
+      // Send notifications for new badges
+      if (allNewBadges.length > 0) {
+        const { createAndSendNotification } = await import("./push-notification-service");
+        for (const badge of allNewBadges) {
+          await createAndSendNotification(
+            userId,
+            "badge_earned",
+            "New Achievement! 🏆",
+            `You've earned the "${badge.title}" badge!`,
+            `/profile`
+          ).catch(err => console.error("Failed to send badge notification:", err));
+        }
+      }
 
       return res.json({ 
         success: true, 
@@ -845,6 +876,302 @@ router.post("/api/create-subscription", async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Error creating subscription:", error);
     res.status(500).json({ error: error.message || "Failed to create subscription" });
+  }
+});
+
+// Update application status and send notification
+router.patch("/api/applications/:id/status", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status, userId } = req.body;
+
+    if (!status || !userId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Get the application
+    const [application] = await db
+      .select()
+      .from(applications)
+      .where(and(
+        eq(applications.id, id),
+        eq(applications.userId, userId)
+      ))
+      .limit(1);
+
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    // Update status
+    const [updatedApp] = await db
+      .update(applications)
+      .set({ status })
+      .where(eq(applications.id, id))
+      .returning();
+
+    // Get job details
+    const [job] = await db
+      .select()
+      .from(jobs)
+      .where(eq(jobs.id, application.jobId))
+      .limit(1);
+
+    // Send notification for status change
+    if (job) {
+      const { notifyApplicationStatusChange } = await import("./push-notification-service");
+      await notifyApplicationStatusChange(
+        userId,
+        id,
+        job.title,
+        job.company,
+        status
+      ).catch(err => console.error("Failed to send status change notification:", err));
+    }
+
+    res.json(updatedApp);
+  } catch (error: any) {
+    console.error("Error updating application status:", error);
+    res.status(500).json({ error: error.message || "Failed to update application status" });
+  }
+});
+
+// Sprint 7: Notifications & Tracking API Endpoints
+
+// Get VAPID public key for push notifications
+router.get("/api/push-vapid-key", async (_req: Request, res: Response) => {
+  try {
+    const { VAPID_PUBLIC_KEY } = await import("./push-notification-service");
+    res.json({ publicKey: VAPID_PUBLIC_KEY });
+  } catch (error: any) {
+    console.error("Error getting VAPID key:", error);
+    res.status(500).json({ error: error.message || "Failed to get VAPID key" });
+  }
+});
+
+// Get user notifications
+router.get("/api/notifications/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { notifications: notificationsTable } = await import("@shared/schema");
+
+    const userNotifications = await db
+      .select()
+      .from(notificationsTable)
+      .where(eq(notificationsTable.userId, userId))
+      .orderBy(desc(notificationsTable.createdAt));
+
+    res.json(userNotifications);
+  } catch (error: any) {
+    console.error("Error fetching notifications:", error);
+    res.status(500).json({ error: error.message || "Failed to fetch notifications" });
+  }
+});
+
+// Create notification (internal use by system)
+router.post("/api/notifications", async (req: Request, res: Response) => {
+  try {
+    const { userId, type, title, message, actionUrl, applicationId, jobId } = req.body;
+
+    if (!userId || !type || !title || !message) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const { notifications: notificationsTable } = await import("@shared/schema");
+    const [notification] = await db
+      .insert(notificationsTable)
+      .values({
+        userId,
+        type,
+        title,
+        message,
+        actionUrl,
+        applicationId,
+        jobId,
+      })
+      .returning();
+
+    res.json(notification);
+  } catch (error: any) {
+    console.error("Error creating notification:", error);
+    res.status(500).json({ error: error.message || "Failed to create notification" });
+  }
+});
+
+// Mark notification as read
+router.patch("/api/notifications/:id/read", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { notifications: notificationsTable } = await import("@shared/schema");
+
+    const [notification] = await db
+      .update(notificationsTable)
+      .set({ isRead: true })
+      .where(eq(notificationsTable.id, id))
+      .returning();
+
+    if (!notification) {
+      return res.status(404).json({ error: "Notification not found" });
+    }
+
+    res.json(notification);
+  } catch (error: any) {
+    console.error("Error marking notification as read:", error);
+    res.status(500).json({ error: error.message || "Failed to mark notification as read" });
+  }
+});
+
+// Mark all notifications as read
+router.patch("/api/notifications/mark-all-read/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { notifications: notificationsTable } = await import("@shared/schema");
+
+    await db
+      .update(notificationsTable)
+      .set({ isRead: true })
+      .where(and(
+        eq(notificationsTable.userId, userId),
+        eq(notificationsTable.isRead, false)
+      ));
+
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error("Error marking all notifications as read:", error);
+    res.status(500).json({ error: error.message || "Failed to mark all notifications as read" });
+  }
+});
+
+// Subscribe to push notifications
+router.post("/api/push-subscriptions", async (req: Request, res: Response) => {
+  try {
+    const { userId, endpoint, p256dhKey, authKey, userAgent } = req.body;
+
+    if (!userId || !endpoint || !p256dhKey || !authKey) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const { pushSubscriptions } = await import("@shared/schema");
+
+    // Check if subscription already exists
+    const [existing] = await db
+      .select()
+      .from(pushSubscriptions)
+      .where(eq(pushSubscriptions.endpoint, endpoint))
+      .limit(1);
+
+    if (existing) {
+      // Update existing subscription
+      const [updated] = await db
+        .update(pushSubscriptions)
+        .set({ isActive: true, userAgent })
+        .where(eq(pushSubscriptions.id, existing.id))
+        .returning();
+      
+      return res.json(updated);
+    }
+
+    // Create new subscription
+    const [subscription] = await db
+      .insert(pushSubscriptions)
+      .values({
+        userId,
+        endpoint,
+        p256dhKey,
+        authKey,
+        userAgent,
+      })
+      .returning();
+
+    res.json(subscription);
+  } catch (error: any) {
+    console.error("Error subscribing to push notifications:", error);
+    res.status(500).json({ error: error.message || "Failed to subscribe" });
+  }
+});
+
+// Unsubscribe from push notifications
+router.delete("/api/push-subscriptions/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { pushSubscriptions } = await import("@shared/schema");
+
+    await db
+      .update(pushSubscriptions)
+      .set({ isActive: false })
+      .where(eq(pushSubscriptions.id, id));
+
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error("Error unsubscribing from push notifications:", error);
+    res.status(500).json({ error: error.message || "Failed to unsubscribe" });
+  }
+});
+
+// Get unread notification count
+router.get("/api/notifications/unread-count/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { notifications: notificationsTable } = await import("@shared/schema");
+
+    const unreadNotifications = await db
+      .select()
+      .from(notificationsTable)
+      .where(and(
+        eq(notificationsTable.userId, userId),
+        eq(notificationsTable.isRead, false)
+      ));
+
+    res.json({ count: unreadNotifications.length });
+  } catch (error: any) {
+    console.error("Error getting unread count:", error);
+    res.status(500).json({ error: error.message || "Failed to get unread count" });
+  }
+});
+
+// Follow-up reminder endpoints - Sprint 7
+
+// Trigger automated follow-up reminder check (for cron jobs)
+router.post("/api/follow-up-reminders/check", async (_req: Request, res: Response) => {
+  try {
+    const { checkAndSendFollowUpReminders } = await import("./follow-up-reminder-service");
+    const result = await checkAndSendFollowUpReminders();
+    res.json(result);
+  } catch (error: any) {
+    console.error("Error checking follow-up reminders:", error);
+    res.status(500).json({ error: error.message || "Failed to check follow-up reminders" });
+  }
+});
+
+// Get applications needing follow-up for a user
+router.get("/api/follow-up-reminders/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { getUserApplicationsNeedingFollowUp } = await import("./follow-up-reminder-service");
+    const applications = await getUserApplicationsNeedingFollowUp(userId);
+    res.json(applications);
+  } catch (error: any) {
+    console.error("Error getting applications needing follow-up:", error);
+    res.status(500).json({ error: error.message || "Failed to get applications" });
+  }
+});
+
+// Send manual follow-up reminder
+router.post("/api/follow-up-reminders/send", async (req: Request, res: Response) => {
+  try {
+    const { userId, applicationId } = req.body;
+    
+    if (!userId || !applicationId) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const { sendManualFollowUpReminder } = await import("./follow-up-reminder-service");
+    await sendManualFollowUpReminder(userId, applicationId);
+    
+    res.json({ success: true, message: "Follow-up reminder sent successfully" });
+  } catch (error: any) {
+    console.error("Error sending manual follow-up reminder:", error);
+    res.status(500).json({ error: error.message || "Failed to send follow-up reminder" });
   }
 });
 

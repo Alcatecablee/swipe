@@ -89,6 +89,32 @@ export const badges = pgTable("badges", {
   earnedAt: timestamp("earned_at").defaultNow().notNull(),
 });
 
+// Notifications table - Sprint 7
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default('gen_random_uuid()'),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: text("type").notNull(), // "application_status", "profile_viewed", "interview_invite", "follow_up_reminder", "badge_earned"
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  actionUrl: text("action_url"), // URL to navigate when clicked
+  applicationId: varchar("application_id").references(() => applications.id),
+  jobId: varchar("job_id").references(() => jobs.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Push subscriptions for web push notifications - Sprint 7
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: varchar("id").primaryKey().default('gen_random_uuid()'),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  endpoint: text("endpoint").notNull().unique(),
+  p256dhKey: text("p256dh_key").notNull(),
+  authKey: text("auth_key").notNull(),
+  userAgent: text("user_agent"),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 export const insertJobSchema = createInsertSchema(jobs).omit({ id: true, createdAt: true, isActive: true });
@@ -96,6 +122,8 @@ export const insertApplicationSchema = createInsertSchema(applications).omit({ i
 export const insertUserExperienceSchema = createInsertSchema(userExperience).omit({ id: true, createdAt: true });
 export const insertSwipeSchema = createInsertSchema(swipes).omit({ id: true, createdAt: true });
 export const insertBadgeSchema = createInsertSchema(badges).omit({ id: true, earnedAt: true });
+export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true });
+export const insertPushSubscriptionSchema = createInsertSchema(pushSubscriptions).omit({ id: true, createdAt: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -110,3 +138,7 @@ export type Swipe = typeof swipes.$inferSelect;
 export type InsertSwipe = z.infer<typeof insertSwipeSchema>;
 export type Badge = typeof badges.$inferSelect;
 export type InsertBadge = z.infer<typeof insertBadgeSchema>;
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type InsertPushSubscription = z.infer<typeof insertPushSubscriptionSchema>;
