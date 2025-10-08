@@ -40,6 +40,65 @@ const updateProfileSchema = z.object({
   nqfLevel: z.number().optional(),
 });
 
+// Helper function to check and update swipe limits
+async function checkAndUpdateSwipeLimit(userId: string): Promise<{ allowed: boolean; remaining: number }> {
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Check if premium user (unlimited swipes)
+  if (user.isPremium) {
+    return { allowed: true, remaining: -1 }; // -1 indicates unlimited
+  }
+
+  const now = new Date();
+  const lastReset = user.lastSwipeResetAt ? new Date(user.lastSwipeResetAt) : null;
+  
+  // Check if we need to reset daily swipes
+  const needsReset = !lastReset || 
+    lastReset.getDate() !== now.getDate() ||
+    lastReset.getMonth() !== now.getMonth() ||
+    lastReset.getFullYear() !== now.getFullYear();
+
+  if (needsReset) {
+    // Reset swipes for new day
+    await db
+      .update(users)
+      .set({
+        swipesUsedToday: 0,
+        lastSwipeResetAt: now,
+      })
+      .where(eq(users.id, userId));
+    
+    return { allowed: true, remaining: (user.dailySwipeLimit || 50) - 1 };
+  }
+
+  const swipesUsed = user.swipesUsedToday || 0;
+  const swipeLimit = user.dailySwipeLimit || 50;
+  
+  if (swipesUsed >= swipeLimit) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  return { allowed: true, remaining: swipeLimit - swipesUsed };
+}
+
+// Helper function to increment swipe count
+async function incrementSwipeCount(userId: string): Promise<void> {
+  await db
+    .update(users)
+    .set({
+      swipesUsedToday: (await db.select().from(users).where(eq(users.id, userId)).limit(1))[0].swipesUsedToday! + 1
+    })
+    .where(eq(users.id, userId));
+}
+
 // Helper function to process a single application
 async function processSingleApplication(userId: string, jobId: string, applicationId: string) {
   // SECURITY: First verify the application exists and belongs to this user
@@ -313,6 +372,76 @@ router.get("/api/profile/:userId", async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Error fetching profile:", error);
     res.status(500).json({ error: error.message || "Failed to fetch profile" });
+  }
+});
+
+// Check swipe limits
+router.get("/api/swipe-limits/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const limitInfo = await checkAndUpdateSwipeLimit(userId);
+    
+    res.json(limitInfo);
+  } catch (error: any) {
+    console.error("Error checking swipe limits:", error);
+    res.status(500).json({ error: error.message || "Failed to check swipe limits" });
+  }
+});
+
+// Create swipe (with limit enforcement)
+router.post("/api/swipe", async (req: Request, res: Response) => {
+  try {
+    const { userId, jobId, action } = req.body;
+
+    if (!userId || !jobId || !action) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Check swipe limits
+    const limitInfo = await checkAndUpdateSwipeLimit(userId);
+    
+    if (!limitInfo.allowed) {
+      return res.status(429).json({ 
+        error: "Daily swipe limit reached", 
+        remaining: 0,
+        resetTime: "tomorrow"
+      });
+    }
+
+    // Create swipe record
+    const { swipes: swipesTable } = await import("@shared/schema");
+    await db.insert(swipesTable).values({
+      userId,
+      jobId,
+      action,
+    });
+
+    // Increment swipe count
+    await incrementSwipeCount(userId);
+
+    // If applying, create application
+    if (action === 'apply') {
+      const { applications: applicationsTable } = await import("@shared/schema");
+      const [newApp] = await db.insert(applicationsTable).values({
+        userId,
+        jobId,
+        status: 'pending',
+      }).returning();
+
+      return res.json({ 
+        success: true, 
+        remaining: limitInfo.remaining - 1,
+        applicationId: newApp.id 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      remaining: limitInfo.remaining - 1 
+    });
+  } catch (error: any) {
+    console.error("Error creating swipe:", error);
+    res.status(500).json({ error: error.message || "Failed to create swipe" });
   }
 });
 

@@ -8,8 +8,9 @@ import ThemeToggle from "@/components/ThemeToggle";
 import ApplicationTemplateDialog from "@/components/ApplicationTemplateDialog";
 import { User, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Job } from "@shared/schema";
 
@@ -94,35 +95,41 @@ export default function SwipePage() {
     },
   });
 
+  // Check swipe limits
+  const { data: swipeLimits, refetch: refetchLimits } = useQuery<{ allowed: boolean; remaining: number }>({
+    queryKey: [`/api/swipe-limits/${user?.id}`],
+    enabled: !!user?.id,
+  });
+
   const swipeMutation = useMutation({
     mutationFn: async ({ jobId, action }: { jobId: string; action: string }) => {
-      // Insert swipe with correct snake_case column names
-      const { error: swipeError } = await supabase
-        .from('swipes')
-        .insert({
-          user_id: user!.id,
-          job_id: jobId,
-          action,
-        });
-
-      if (swipeError) throw swipeError;
-
-      // If action is "apply", also create an application
-      if (action === 'apply') {
-        const { error: appError } = await supabase
-          .from('applications')
-          .insert({
-            user_id: user!.id,
-            job_id: jobId,
-            status: 'pending',
-          });
-
-        if (appError) throw appError;
-      }
+      // Use backend API with limit enforcement
+      const response = await apiRequest("/api/swipe", "POST", {
+        userId: user!.id,
+        jobId,
+        action,
+      });
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobs-swipe'] });
       queryClient.invalidateQueries({ queryKey: ['applications'] });
+      refetchLimits(); // Update swipe limits display
+    },
+    onError: (error: any) => {
+      if (error.message?.includes("limit reached")) {
+        toast({
+          variant: "destructive",
+          title: "Daily limit reached!",
+          description: "You've used all your free swipes for today. Come back tomorrow or upgrade to Premium for unlimited swipes!",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message || "Failed to swipe",
+        });
+      }
     },
   });
 
@@ -213,7 +220,21 @@ export default function SwipePage() {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-primary">SwipeJob</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-primary">SwipeJob</h1>
+            {swipeLimits && (
+              <Badge 
+                variant={swipeLimits.remaining === 0 ? "destructive" : swipeLimits.remaining < 10 ? "secondary" : "default"}
+                data-testid="badge-swipe-counter"
+              >
+                {swipeLimits.remaining === -1 ? (
+                  "∞ Unlimited"
+                ) : (
+                  `${swipeLimits.remaining} swipes left`
+                )}
+              </Badge>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <FilterDrawer />
             <Button
