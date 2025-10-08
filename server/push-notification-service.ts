@@ -157,7 +157,7 @@ export async function notifyApplicationStatusChange(
       message: `You've been invited for an interview for ${jobTitle} at ${companyName}!`,
     },
     accepted: {
-      title: "Congratulations! 🎉",
+      title: "Congratulations!",
       message: `Your application for ${jobTitle} at ${companyName} has been accepted!`,
     },
     rejected: {

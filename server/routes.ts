@@ -6,6 +6,7 @@ import { users, jobs, applications, userExperience, swipes, profileViews, interv
 import { eq, and, not, inArray, desc } from "drizzle-orm";
 import { rankJobsByMatch } from "./matching-service";
 import Stripe from "stripe";
+import { initializeStorageBucket } from "./supabase-admin";
 
 // Initialize Stripe (reference: blueprint:javascript_stripe)
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -1457,6 +1458,17 @@ router.get("/api/application-stats/:userId", async (req: Request, res: Response)
   } catch (error: any) {
     console.error("Error fetching application stats:", error);
     res.status(500).json({ error: error.message || "Failed to fetch application stats" });
+  }
+});
+
+// Initialize storage bucket for resumes
+router.post("/api/init-storage", async (req: Request, res: Response) => {
+  try {
+    const result = await initializeStorageBucket('resumes');
+    res.json(result);
+  } catch (error: any) {
+    console.error("Error initializing storage bucket:", error);
+    res.status(500).json({ error: error.message || "Failed to initialize storage bucket" });
   }
 });
 
