@@ -7,9 +7,7 @@ const RUNTIME_CACHE = 'swipejob-runtime-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/manifest.json'
 ];
 
 // Install event - cache static assets
