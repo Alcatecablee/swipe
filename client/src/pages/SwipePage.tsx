@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import JobCard from "@/components/JobCard";
 import FilterDrawer from "@/components/FilterDrawer";
 import ThemeToggle from "@/components/ThemeToggle";
+import ApplicationTemplateDialog from "@/components/ApplicationTemplateDialog";
 import { User, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
@@ -20,6 +21,32 @@ export default function SwipePage() {
   const [swipeDirection, setSwipeDirection] = useState<
     "left" | "right" | null
   >(null);
+  const [showApplicationDialog, setShowApplicationDialog] = useState(false);
+  const [isProcessingApplication, setIsProcessingApplication] = useState(false);
+
+  const { data: userProfile } = useQuery({
+    queryKey: ['profile', user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user!.id)
+        .single();
+
+      if (userError) throw userError;
+
+      const { data: experience, error: expError } = await supabase
+        .from('user_experience')
+        .select('*')
+        .eq('user_id', user!.id)
+        .order('created_at', { ascending: false });
+
+      if (expError) throw expError;
+
+      return { ...userData, experience };
+    },
+  });
 
   const { data: jobs, isLoading, error: jobsError } = useQuery<Job[]>({
     queryKey: ['jobs-swipe', user?.id],
@@ -129,12 +156,20 @@ export default function SwipePage() {
 
   const handleApply = async () => {
     if (!currentJob) return;
+    // Show application template dialog instead of immediately applying
+    setShowApplicationDialog(true);
+  };
+
+  const handleConfirmApplication = async () => {
+    if (!currentJob) return;
+    setIsProcessingApplication(true);
     try {
       await swipeMutation.mutateAsync({ jobId: currentJob.id, action: 'apply' });
       toast({
         title: "Application submitted!",
         description: `You've applied to ${currentJob.title} at ${currentJob.company}`,
       });
+      setShowApplicationDialog(false);
       handleSwipe("right");
     } catch (error: any) {
       toast({
@@ -142,6 +177,8 @@ export default function SwipePage() {
         title: "Error",
         description: error.message,
       });
+    } finally {
+      setIsProcessingApplication(false);
     }
   };
 
@@ -205,7 +242,16 @@ export default function SwipePage() {
       <main className="flex-1 flex items-center justify-center p-4">
         {currentJob ? (
           <JobCard
-            {...currentJob}
+            id={currentJob.id}
+            title={currentJob.title}
+            company={currentJob.company}
+            salary={currentJob.salary}
+            location={currentJob.location}
+            skills={currentJob.skills}
+            description={currentJob.description}
+            workType={currentJob.workType}
+            sector={currentJob.sector}
+            nqfLevel={currentJob.nqfLevel}
             onSkip={handleSkip}
             onApply={handleApply}
             swipeDirection={swipeDirection}
@@ -223,6 +269,34 @@ export default function SwipePage() {
       <div className="text-center py-4 text-sm text-muted-foreground">
         {jobs && jobs.length > 0 ? `${currentIndex + 1} of ${jobs.length} jobs` : 'No jobs available'}
       </div>
+
+      {/* Application Template Dialog */}
+      <ApplicationTemplateDialog
+        open={showApplicationDialog}
+        onOpenChange={setShowApplicationDialog}
+        userProfile={userProfile ? {
+          name: userProfile.name,
+          email: userProfile.email,
+          location: userProfile.location,
+          skills: userProfile.skills,
+          languages: userProfile.languages,
+          nqfLevel: userProfile.nqf_level,
+          experience: userProfile.experience,
+        } : null}
+        job={currentJob ? {
+          title: currentJob.title,
+          company: currentJob.company,
+          location: currentJob.location,
+          salary: currentJob.salary,
+          description: currentJob.description,
+          skills: currentJob.skills,
+          sector: currentJob.sector ?? undefined,
+          nqfLevel: currentJob.nqfLevel ?? undefined,
+          workType: currentJob.workType ?? undefined,
+        } : null}
+        onConfirm={handleConfirmApplication}
+        isProcessing={isProcessingApplication}
+      />
     </div>
   );
 }

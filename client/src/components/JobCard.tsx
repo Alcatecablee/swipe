@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Briefcase, DollarSign, X, Check } from "lucide-react";
+import { MapPin, Briefcase, DollarSign, X, Check, Home, Laptop, Users } from "lucide-react";
 import { useState } from "react";
 
 export interface JobCardProps {
@@ -13,6 +13,9 @@ export interface JobCardProps {
   location: string;
   skills: string[];
   description: string;
+  workType?: string | null;
+  sector?: string | null;
+  nqfLevel?: number | null;
   onSkip?: () => void;
   onApply?: () => void;
   swipeDirection?: "left" | "right" | null;
@@ -26,11 +29,42 @@ export default function JobCard({
   location,
   skills,
   description,
+  workType,
+  sector,
+  nqfLevel,
   onSkip,
   onApply,
   swipeDirection,
 }: JobCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+
+  const getWorkTypeIcon = () => {
+    if (!workType) return null;
+    switch (workType.toLowerCase()) {
+      case 'remote':
+        return <Laptop className="w-4 h-4" />;
+      case 'onsite':
+        return <Home className="w-4 h-4" />;
+      case 'hybrid':
+        return <Users className="w-4 h-4" />;
+      default:
+        return null;
+    }
+  };
+
+  const getWorkTypeColor = () => {
+    if (!workType) return "secondary";
+    switch (workType.toLowerCase()) {
+      case 'remote':
+        return "default";
+      case 'onsite':
+        return "outline";
+      case 'hybrid':
+        return "secondary";
+      default:
+        return "secondary";
+    }
+  };
 
   return (
     <Card
@@ -101,13 +135,39 @@ export default function JobCard({
             <DollarSign className="w-5 h-5" />
             {salary}
           </div>
-          <div
-            className="flex items-center gap-2 text-base text-foreground"
-            data-testid="text-location"
-          >
-            <MapPin className="w-4 h-4" />
-            {location}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div
+              className="flex items-center gap-2 text-base text-foreground"
+              data-testid="text-location"
+            >
+              <MapPin className="w-4 h-4" />
+              {location}
+            </div>
+            {workType && (
+              <Badge 
+                variant={getWorkTypeColor() as any}
+                className="gap-1"
+                data-testid="badge-work-type"
+              >
+                {getWorkTypeIcon()}
+                {workType.charAt(0).toUpperCase() + workType.slice(1)}
+              </Badge>
+            )}
           </div>
+          {(sector || nqfLevel) && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {sector && (
+                <Badge variant="outline" data-testid="badge-sector">
+                  {sector}
+                </Badge>
+              )}
+              {nqfLevel && (
+                <Badge variant="outline" data-testid="badge-nqf">
+                  NQF Level {nqfLevel}
+                </Badge>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-2" data-testid="container-skills">
