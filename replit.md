@@ -7,7 +7,7 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - **Frontend**: React + TypeScript + Vite + shadcn/ui + TailwindCSS
 - **Backend**: Express.js with API routes for AI processing
 - **Database**: Supabase PostgreSQL with Row Level Security
-- **Authentication**: Supabase Auth (email/password)
+- **Authentication**: Supabase Auth (email/password + OAuth)
 - **AI Service**: Groq (free tier) with Llama 3.3 70B model
 - **State Management**: TanStack Query v5
 
@@ -57,222 +57,186 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - All data queries use snake_case column names
 - Frontend uses camelCase, mapped to snake_case for Supabase
 
-## Recent Fixes (October 2025)
+## Enhanced Product Roadmap - Sorce-Inspired Vision
 
-- ✅ Fixed critical UUID syntax bug in swipe query (was breaking after first swipe)
-- ✅ Added comprehensive error handling with retry UI to all pages
-- ✅ Fixed DOM nesting warnings in marketing components
-- ✅ Created SQL trigger for automatic user profile creation (needs to be executed in Supabase)
+### 🎯 IMMEDIATE PRIORITY - Phase 1 (Current Sprint)
 
-## Product Roadmap - Full Vision
+#### Step 1: Enhanced Onboarding & Resume Upload
+- [ ] **Resume Upload Feature** - PDF/Image upload with file validation
+- [ ] **Resume Parsing AI** - Extract skills, experience, education from uploaded documents
+- [ ] **Resume Text Input** - Allow copy/paste text as alternative
+- [ ] **Quick Setup Flow** - 2-5 minute profile creation (Sorce Passport)
+- [ ] **OAuth Integration** - Google/Apple/LinkedIn sign-in
+- [ ] **Email/Phone Verification** - One-time code verification
+- [ ] **Profile Preview** - Show extracted data with manual edit option
+- [ ] **Preference Wizard** - Job title, location, salary, seniority filters
 
-### 📋 Planned Features
+#### Step 2: Enhanced Swipe Interface
+- [ ] **Swipe Gestures** - Touch/drag support for mobile-like experience
+- [ ] **Enhanced Job Cards** - Salary estimates, remote/hybrid badges, key requirements preview
+- [ ] **Daily Swipe Limits** - Free tier: 50-100 swipes/day, Premium: unlimited
+- [ ] **Swipe Counter** - Display remaining swipes for the day
+- [ ] **Smart Algorithm** - ML-based matching using skill overlap, past swipes, user preferences
+- [ ] **Undo Swipe** - Option to undo last swipe (premium feature)
+- [ ] **Match Score Display** - Show "80% skill match" on cards
+- [ ] **Company Ratings** - Display employer ratings/reviews on cards
 
-#### Core Job Matching Flow
-- [ ] **Resume Upload** - Parse and extract user data from uploaded resumes
-- [ ] **LinkedIn Integration** - Import profile and references
-- [ ] **Enhanced Job Cards** - Show remote/hybrid options, detailed location info
-- [ ] **Application Templates** - Pre-fill applications and ask for user approval
-- [ ] **Notifications** - Interview invites, status updates, feedback alerts
+#### Step 3: Auto-Apply Enhancement
+- [ ] **Instant Application Trigger** - Right swipe = immediate auto-apply
+- [ ] **Form Auto-Fill** - Parse and fill external ATS forms (Greenhouse, Lever, etc.)
+- [ ] **Custom Question AI** - Generate answers for employer-specific questions
+- [ ] **Application Preview** - Show preview before final submission (optional setting)
+- [ ] **Submission Confirmation** - In-app notifications: "Applied! Cover letter sent"
+- [ ] **ATS Compatibility** - Support 1,000+ ATS systems
+- [ ] **CAPTCHA Handler** - Notify user when manual verification needed
+- [ ] **Application Templates** - Pre-filled forms with user approval workflow
 
-#### South African Local Features
-- [ ] **Regional Filtering** - Filter by province/city (JHB, Durban, CPT, Eastern Cape, etc.)
-- [ ] **Gig & Contract Work** - Support for non-full-time roles
-- [ ] **Transport Cost Calculator** - Show commuting cost to job location
-- [ ] **Skills Matching** - Suggest upskilling modules if user doesn't meet requirements
-- [ ] **Language & Cultural Matching** - Filter by language requirements (isiZulu, isiXhosa, Afrikaans, etc.)
-- [ ] **WhatsApp Apply** - Chat interface for informal users
-- [ ] **NQF Level Integration** - Better qualification matching
+#### Step 4: Application Tracking & Notifications
+- [ ] **Enhanced Dashboard** - Active applications with real-time status
+- [ ] **Status Updates** - Pending, Submitted, Viewed, Interview, Rejected, Hired
+- [ ] **Push Notifications** - Application confirmed, employer viewed, interview invite
+- [ ] **Follow-Up Reminders** - "Nudge this application?" suggestions
+- [ ] **Application Analytics** - Personal insights, conversion rates
+- [ ] **Reapplication Logic** - Smart suggestions for reapplying with improved profile
+- [ ] **Interview Scheduler** - Calendar integration for interview bookings
 
-#### Employer Dashboard
-- [ ] **Employer Swipe Interface** - Swipe on candidates
-- [ ] **Candidate Shortlisting** - Save and organize potential hires
-- [ ] **Custom Questions** - Request additional info from candidates
-- [ ] **Analytics Dashboard** - Resume conversion rates, geographic activity
+#### Step 5: Referral & Gamification
+- [ ] **Referral Program** - Invite friends, earn bonus swipes/credits
+- [ ] **Achievement Badges** - Rewards for profile completion, applications sent
+- [ ] **Swipe Statistics** - Show user patterns, success rates
+- [ ] **Profile Completion Score** - Gamified profile building with progress bar
+- [ ] **Daily Streaks** - Encourage daily engagement with streak tracking
+- [ ] **Leaderboard** - Top referrers, most active users (optional)
 
-#### Monetization Features
-- [ ] **Recruitment Fees** - Charge employers for successful hires
-- [ ] **Premium Access** - Enhanced candidate access for employers
-- [ ] **Candidate Boost** - Paid priority in job queue
-- [ ] **Analytics & Insights** - Data reports for employers
+### 💎 Premium Features (Freemium Model)
 
-#### AI & Machine Learning Enhancements
-- [ ] **Smart Job Recommendations** - ML-based job matching based on user behavior
-- [ ] **Resume Parsing AI** - Extract and structure data from PDFs/images
-- [ ] **Interview Preparation** - AI-generated practice questions for specific roles
-- [ ] **Salary Predictor** - Suggest market-appropriate salary expectations
-- [ ] **Skills Gap Analysis** - Identify missing skills and suggest courses
-- [ ] **Application Success Predictor** - Show likelihood of getting interview
-- [ ] **Personalized Cover Letters** - Dynamic templates based on company culture
-- [ ] **Auto-fill Application Forms** - OCR and form automation for external sites
+#### Free Tier
+- 50-100 swipes per day
+- Basic AI cover letter generation
+- Application tracking
+- Email notifications
+- Basic profile features
 
-#### Mobile Application
-- [ ] **React Native App** - iOS and Android native apps
-- [ ] **Offline Mode** - Cache jobs for viewing without internet
-- [ ] **Push Notifications** - Real-time alerts for job matches and updates
-- [ ] **Biometric Login** - Face ID / Fingerprint authentication
-- [ ] **Quick Apply** - One-tap application from push notification
-- [ ] **Camera Resume Upload** - Take photo of printed resume
-- [ ] **Voice Search** - Search jobs by speaking
-- [ ] **Location-Based Alerts** - Notify when jobs appear nearby
+#### Premium Tier (R99/month or $9.99/month)
+- [ ] **Unlimited Swipes** - No daily limits
+- [ ] **Advanced AI** - A/B tested cover letters, interview coaching
+- [ ] **Priority Matching** - Top of employer queue
+- [ ] **Analytics Dashboard** - "Your apps convert 25% better in tech"
+- [ ] **Undo Swipes** - Correct mistakes
+- [ ] **Profile Boost** - Increased visibility to employers
+- [ ] **Interview Preparation** - AI-generated practice questions
+- [ ] **Resume Builder** - Professional templates and AI suggestions
 
-#### User Experience Improvements
-- [ ] **Onboarding Flow** - Interactive tutorial for first-time users
-- [ ] **Profile Completion Score** - Gamified profile building
-- [ ] **Daily Job Recommendations** - Curated job feed based on preferences
-- [ ] **Swipe Statistics** - Show user their application patterns
-- [ ] **Achievement Badges** - Rewards for completing profile, applying to jobs
-- [ ] **Referral Program** - Invite friends and earn credits
-- [ ] **Dark/Light Mode Toggle** - User preference persistence
-- [ ] **Accessibility Features** - Screen reader support, high contrast mode
-- [ ] **Multi-language Support** - Support for 11 official SA languages
-- [ ] **Progressive Web App** - Install as app on mobile browsers
+### 🚀 Implementation Roadmap by Sprint
 
-#### Marketing & Growth Features
-- [ ] **Social Sharing** - Share job postings on social media
-- [ ] **Success Stories** - Highlight user testimonials and placements
-- [ ] **Blog & Resources** - Career advice, interview tips, CV templates
-- [ ] **Email Campaigns** - Weekly job digests, application reminders
-- [ ] **Referral Tracking** - Track and reward successful referrals
-- [ ] **Landing Pages** - SEO-optimized pages for different sectors
-- [ ] **Affiliate Program** - Partner with universities and training providers
-- [ ] **Events Calendar** - Job fairs, webinars, networking events
-- [ ] **Company Profiles** - Detailed employer branding pages
-- [ ] **Video Testimonials** - User success stories and employer reviews
+#### Sprint 1 (Week 1-2): Resume Upload & Parsing
+**Goal**: Enable resume upload and AI parsing
+- [ ] Add file upload component (PDF/image support)
+- [ ] Integrate OCR for image resumes (Tesseract.js or Google Vision API)
+- [ ] Create AI resume parser (extract: name, email, skills, experience, education)
+- [ ] Build resume preview/edit UI
+- [ ] Update database schema for resume storage
+- [ ] Add resume data to user profile
 
-#### Analytics & Reporting
-- [ ] **User Dashboard** - Personal analytics and application insights
-- [ ] **Application Funnel** - Track from swipe to hire
-- [ ] **Employer Analytics** - Candidate engagement and conversion metrics
-- [ ] **Geographic Heatmaps** - Job density and application patterns by region
-- [ ] **Skills Demand Analysis** - Most requested skills in market
-- [ ] **Salary Benchmarking** - Industry and role-based salary data
-- [ ] **Time-to-Hire Metrics** - Average application to hire duration
-- [ ] **A/B Testing Framework** - Test features and optimize conversion
-- [ ] **Custom Reports** - Exportable data for employers
-- [ ] **Predictive Analytics** - Forecast hiring trends and demand
+#### Sprint 2 (Week 3-4): OAuth & Enhanced Onboarding
+**Goal**: Streamline user registration
+- [ ] Implement Google OAuth (Supabase Auth)
+- [ ] Implement LinkedIn OAuth for profile import
+- [ ] Create step-by-step onboarding wizard
+- [ ] Add preference collection (job title, location, salary, etc.)
+- [ ] Build "Sorce Passport" profile hub
+- [ ] Add email/phone verification flow
 
-#### Platform Integrations
-- [ ] **LinkedIn OAuth** - Import profile and network connections
-- [ ] **Indeed API** - Aggregate external job listings
-- [ ] **Pnet Integration** - Cross-post to other SA job boards
-- [ ] **Google Calendar** - Sync interview appointments
-- [ ] **Zoom/Teams Integration** - Schedule virtual interviews
-- [ ] **Payment Gateway** - Stripe/PayFast for SA payments
-- [ ] **SMS Gateway** - Clickatell/Twilio for notifications
-- [ ] **Email Service** - SendGrid/Mailgun for transactional emails
-- [ ] **Cloud Storage** - S3/GCS for resume and document storage
-- [ ] **CRM Integration** - Salesforce/HubSpot for employer leads
+#### Sprint 3 (Week 5-6): Swipe Limits & Gamification
+**Goal**: Add freemium model and engagement features
+- [ ] Implement daily swipe counter (50 free swipes/day)
+- [ ] Create swipe limit enforcement logic
+- [ ] Build referral system (invite friends = bonus swipes)
+- [ ] Add achievement badges UI
+- [ ] Create profile completion score
+- [ ] Build swipe statistics dashboard
 
-#### Compliance & Legal
-- [ ] **POPIA Compliance** - Protection of Personal Information Act adherence
-- [ ] **GDPR Support** - Data privacy for international users
-- [ ] **Terms of Service** - Legal agreements for users and employers
-- [ ] **Privacy Policy** - Clear data handling and storage policies
-- [ ] **Cookie Consent** - POPIA-compliant cookie management
-- [ ] **Data Export** - Allow users to download their data
-- [ ] **Right to Deletion** - POPIA-mandated data removal
-- [ ] **Audit Logging** - Track data access and modifications
-- [ ] **Employment Equity** - Support EE reporting for employers
-- [ ] **Tax Compliance** - SARS-compliant payment processing
+#### Sprint 4 (Week 7-8): Smart Matching Algorithm
+**Goal**: Improve job recommendations
+- [ ] Build skill matching algorithm (overlap calculation)
+- [ ] Track swipe patterns (accepted/rejected job types)
+- [ ] Create ML-based recommendation engine
+- [ ] Display match scores on job cards
+- [ ] Filter jobs by company ratings
+- [ ] Add "jobs you might like" section
 
-### 🔒 Security & Technical Debt
+#### Sprint 5 (Week 9-10): Auto-Apply Enhancement
+**Goal**: Automate external application forms
+- [ ] Research ATS integrations (Greenhouse, Lever, Workday)
+- [ ] Build form auto-fill bot (Puppeteer/Playwright)
+- [ ] Generate custom question responses via AI
+- [ ] Add application preview before submission
+- [ ] Implement CAPTCHA detection and user notification
+- [ ] Create submission confirmation flow
 
-#### Critical (Must Fix Before Production)
-- **Backend Authentication** - Add JWT/session validation middleware
-  - Currently: `userId` is client-supplied (trusted but can be spoofed)
-  - Fix: Derive `userId` from authenticated session token
-  - Impact: Prevents PII leakage and unauthorized application processing
-  
-#### Current Security Measures (In Place)
-- ✅ Ownership verification (checks user owns application before processing)
-- ✅ State validation (only processes "pending" applications)
-- ✅ Input validation (Zod schemas on all API inputs)
-- ✅ Rate limiting (max 10 applications per batch request)
-- ✅ AI content validation (minimum length checks)
-- ✅ Update verification (confirms rows were actually modified)
+#### Sprint 6 (Week 11-12): Premium Features & Monetization
+**Goal**: Launch premium tier
+- [ ] Build subscription system (Stripe/PayFast integration)
+- [ ] Implement unlimited swipes for premium users
+- [ ] Add advanced AI features (A/B tested cover letters)
+- [ ] Create priority matching queue
+- [ ] Build analytics dashboard for premium users
+- [ ] Add undo swipe functionality
 
-#### Recommended Before Scale
-- [ ] Implement Supabase RLS policies (currently basic policies)
-- [ ] Add API rate limiting middleware (express-rate-limit)
-- [ ] Implement request logging and monitoring
-- [ ] Add CSRF protection for state-changing operations
-- [ ] Set up proper error tracking (Sentry, LogRocket, etc.)
+#### Sprint 7 (Week 13-14): Notifications & Tracking
+**Goal**: Enhance user engagement
+- [ ] Implement push notifications (web push API)
+- [ ] Create email notification system
+- [ ] Build real-time status tracking
+- [ ] Add employer "viewed profile" notifications
+- [ ] Create interview invite workflow
+- [ ] Build follow-up reminder system
 
-### 🗓️ Implementation Phases
+#### Sprint 8 (Week 15-16): Mobile Optimization
+**Goal**: Perfect mobile experience
+- [ ] Optimize swipe gestures for touch screens
+- [ ] Improve mobile UI/UX (card animations)
+- [ ] Add offline mode (cache jobs locally)
+- [ ] Implement Progressive Web App (PWA)
+- [ ] Add "Install App" prompt
+- [ ] Optimize for low-end devices
 
-#### Phase 1: MVP Enhancement (Months 1-2)
-**Goal**: Fix critical issues and improve core user experience
-- [ ] Implement backend authentication middleware
-- [ ] Connect filter functionality to backend queries
-- [ ] Add profile editing mutations
-- [ ] Improve RLS policies in Supabase
-- [ ] Set up error tracking (Sentry)
-- [ ] Add API rate limiting
-- [ ] Implement email notifications
-- [ ] Create comprehensive onboarding flow
-- [ ] Add profile completion gamification
+### 📱 Mobile App (Future Phase)
 
-#### Phase 2: Local Market Fit (Months 3-4)
-**Goal**: Optimize for South African job market
-- [ ] Regional filtering by province/city
+#### React Native Implementation
+- [ ] iOS app (React Native)
+- [ ] Android app (React Native)
+- [ ] Biometric login (Face ID/Fingerprint)
+- [ ] Camera resume upload
+- [ ] Voice search for jobs
+- [ ] Location-based alerts
+- [ ] Quick apply from notifications
+- [ ] Offline job browsing
+
+### 🌍 South African Local Features
+
+#### Regional Customization
+- [ ] Province/city filtering (JHB, CPT, Durban, etc.)
 - [ ] Transport cost calculator
-- [ ] WhatsApp integration for applications
+- [ ] NQF level matching
 - [ ] Multi-language support (Zulu, Xhosa, Afrikaans, etc.)
-- [ ] NQF level matching improvements
-- [ ] Gig & contract work support
-- [ ] Skills gap analysis and course suggestions
-- [ ] POPIA compliance implementation
+- [ ] WhatsApp integration
+- [ ] POPIA compliance
 - [ ] PayFast payment integration
+- [ ] Gig/contract work support
 
-#### Phase 3: Employer Platform (Months 5-6)
-**Goal**: Build employer-side features for revenue
-- [ ] Employer registration and dashboard
-- [ ] Employer swipe interface for candidates
-- [ ] Candidate shortlisting and management
-- [ ] Custom application questions
-- [ ] Basic analytics dashboard
+### 💼 Employer Platform (Phase 2)
+
+#### Employer Features
+- [ ] Employer registration & dashboard
 - [ ] Job posting management
-- [ ] Recruitment fee payment system
-- [ ] Premium employer features
-- [ ] Employer CRM integration
-
-#### Phase 4: AI & Automation (Months 7-8)
-**Goal**: Advanced AI features for competitive advantage
-- [ ] Resume parsing with OCR
-- [ ] Smart job recommendations (ML model)
-- [ ] Interview preparation AI
-- [ ] Salary prediction model
-- [ ] Application success predictor
-- [ ] Auto-fill application forms
-- [ ] Company culture analysis
-- [ ] Skills demand forecasting
-
-#### Phase 5: Mobile & Scale (Months 9-12)
-**Goal**: Mobile app launch and platform scaling
-- [ ] React Native mobile app (iOS & Android)
-- [ ] Push notifications infrastructure
-- [ ] Offline mode implementation
-- [ ] Biometric authentication
-- [ ] Voice search feature
-- [ ] Performance optimization
-- [ ] CDN implementation
-- [ ] Database sharding strategy
-- [ ] Load balancing setup
-- [ ] Progressive Web App optimization
-
-#### Phase 6: Market Expansion (Year 2)
-**Goal**: Geographic and feature expansion
-- [ ] Platform integrations (LinkedIn, Indeed, Pnet)
-- [ ] Blog and content marketing
-- [ ] Video testimonials platform
-- [ ] Events and webinars calendar
-- [ ] Affiliate program with universities
-- [ ] Advanced analytics and reporting
-- [ ] A/B testing framework
-- [ ] Success stories showcase
-- [ ] Referral program enhancement
-- [ ] International expansion (Africa)
+- [ ] Candidate swipe interface (reverse swipe)
+- [ ] Shortlist and organize candidates
+- [ ] Custom application questions
+- [ ] Analytics dashboard
+- [ ] Recruitment fee system (pay per hire)
+- [ ] Premium employer features (boosted visibility)
+- [ ] EE compliance reporting
 
 ### 📊 Success Metrics (KPIs)
 
@@ -280,160 +244,100 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - **Monthly Active Users (MAU)** - Target: 10,000 by Month 6
 - **Daily Active Users (DAU)** - Target: 2,000 by Month 6
 - **User Retention Rate** - Target: 40% (30-day retention)
-- **Average Session Duration** - Target: 8+ minutes
 - **Profile Completion Rate** - Target: 75%
-- **Application Conversion** - Target: 15% (swipe to apply)
+- **Time to First Application** - Target: < 5 minutes from signup
+- **Applications per User** - Target: 5+ per month
 
 #### Engagement Metrics
-- **Swipes per Session** - Target: 15+ jobs viewed
-- **Applications per User** - Target: 5+ per month
+- **Swipes per Session** - Target: 20-50 jobs viewed
+- **Application Conversion** - Target: 15% (swipe to apply)
 - **AI Cover Letter Usage** - Target: 80% of applications
 - **Return Visit Rate** - Target: 50% within 7 days
-- **Feature Adoption** - Target: 60% use AI auto-apply
+- **Referral Conversion** - Target: 20% invited users sign up
 
 #### Business Metrics
 - **Monthly Recurring Revenue (MRR)** - Target: R50,000 by Month 12
+- **Premium Conversion Rate** - Target: 5% of free users upgrade
 - **Customer Acquisition Cost (CAC)** - Target: < R50 per user
 - **Lifetime Value (LTV)** - Target: R200+ per employer
-- **LTV:CAC Ratio** - Target: 4:1
-- **Employer Conversion Rate** - Target: 5% of registered employers pay
 - **Placement Success Rate** - Target: 10% of applications lead to hire
 
-#### Platform Metrics
-- **Time to First Application** - Target: < 5 minutes from signup
-- **API Response Time** - Target: < 200ms average
-- **Error Rate** - Target: < 0.5%
-- **Uptime** - Target: 99.9%
-- **Page Load Time** - Target: < 2 seconds
-- **Mobile App Rating** - Target: 4.5+ stars
+### 🔒 Security & Compliance
 
-### 🎯 Target Audience Segments
+#### Critical Security Tasks
+- [ ] Backend authentication middleware (JWT/session validation)
+- [ ] Implement proper RLS policies in Supabase
+- [ ] Add API rate limiting (express-rate-limit)
+- [ ] CSRF protection for state-changing operations
+- [ ] Error tracking (Sentry/LogRocket)
+- [ ] Request logging and monitoring
+- [ ] POPIA compliance (data privacy)
+- [ ] Secure file upload (virus scanning)
+- [ ] Encrypted resume storage
 
-#### Primary Segments
+### 🎯 Current MVP Limitations to Address
 
-**1. Young Professionals (25-35 years)**
-- Recently graduated or early career
-- Tech-savvy, mobile-first users
-- Looking for career advancement
-- High engagement with AI features
-- Value speed and convenience
+**High Priority Fixes:**
+1. Resume upload not implemented → Sprint 1
+2. No daily swipe limits → Sprint 3
+3. No referral program → Sprint 3
+4. No OAuth login → Sprint 2
+5. No smart matching algorithm → Sprint 4
+6. No auto-form filling → Sprint 5
+7. No premium tier → Sprint 6
+8. Backend authentication needs JWT validation
 
-**2. Job Seekers in Transition (30-45 years)**
-- Changing careers or industries
-- Need guidance and support
-- Benefit from skills gap analysis
-- Value cover letter assistance
-- Prefer comprehensive resources
-
-**3. Entry-Level Candidates (18-25 years)**
-- First-time job seekers
-- Limited experience
-- Need maximum support
-- Benefit from AI auto-apply
-- Mobile-first, WhatsApp native
-
-**4. Skilled Workers (25-50 years)**
-- Trade and technical skills
-- Looking for contract/gig work
-- Need quick application process
-- Benefit from NQF matching
-- Regional job preferences
-
-#### Secondary Segments
-
-**5. Remote Workers (Any age)**
-- Location-independent
-- Tech industry focus
-- Higher salary expectations
-- Value company culture fit
-- Interested in international opportunities
-
-**6. Career Returners (30-55 years)**
-- Re-entering workforce after break
-- Need confidence building
-- Benefit from interview prep
-- Value flexible work options
-- Appreciate personalized support
+**Known Issues:**
+- Filter functionality exists in UI but not connected to backend queries
+- Profile editing UI lacks backend mutations
+- AI generates Google search URLs (not actual application links)
+- Backend accepts client-supplied userId (needs auth middleware)
+- No actual external job application submission
 
 ### 🏆 Competitive Advantages
 
-**1. AI-Powered Simplicity**
-- One-swipe applications vs traditional lengthy forms
-- AI-generated professional cover letters
-- Smart matching reduces irrelevant jobs
-- Saves 80% of application time
+**Our Edge:**
+1. **AI-Powered Simplicity** - One-swipe applications vs 30-60 min forms
+2. **10x Faster Applying** - AI handles cover letters, forms, custom questions
+3. **Mobile-First** - Built for smartphone job hunting
+4. **South African Focus** - POPIA compliant, local payments, NQF integration
+5. **Freemium Model** - Always free for job seekers, employers pay
+6. **Gamification** - Referrals, badges, streaks make job hunting engaging
+7. **1,000+ ATS Support** - Auto-apply to most company career portals
 
-**2. South African Context**
-- Built specifically for SA job market
-- POPIA compliant from day one
-- Local payment methods (PayFast)
-- Multi-language support
-- NQF level integration
-- Transport cost awareness
+### 📝 Technical Debt & Improvements
 
-**3. Mobile-First Design**
-- Works on low-end devices
-- Offline capability
-- WhatsApp integration
-- Voice search for accessibility
-- Data-conscious design
+#### Backend
+- [ ] Add JWT/session authentication middleware
+- [ ] Connect filters to actual database queries
+- [ ] Implement profile editing mutations
+- [ ] Add comprehensive input validation
+- [ ] Set up proper error tracking
+- [ ] Implement request logging
 
-**4. Candidate-Centric Approach**
-- Free for job seekers always
-- Privacy-first (no spam)
-- Skills development suggestions
-- Interview preparation tools
-- Success tracking and insights
+#### Database
+- [ ] Optimize query performance (indexes)
+- [ ] Add data migration scripts
+- [ ] Implement backup strategy
+- [ ] Add audit logging tables
 
-**5. Employer Value Proposition**
-- Only pay for successful placements
-- Pre-screened, motivated candidates
-- Reduced time-to-hire
-- Analytics and insights
-- EE compliance support
+#### Frontend
+- [ ] Improve error handling UI
+- [ ] Add loading skeletons
+- [ ] Optimize bundle size
+- [ ] Implement code splitting
+- [ ] Add accessibility features
+- [ ] Improve mobile responsiveness
 
-### 🚀 Go-to-Market Strategy
+## Environment Setup
 
-#### Month 1-3: Beta Launch
-- [ ] Launch with 50 beta users (friends, family, network)
-- [ ] Partner with 3-5 local companies for job listings
-- [ ] Gather feedback and iterate quickly
-- [ ] Focus on Johannesburg and Cape Town
-- [ ] Build initial job database (100+ listings)
+### Required Secrets
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
+- `GROQ_API_KEY` - Groq AI API key for cover letter generation
+- `STRIPE_SECRET_KEY` - For premium subscriptions (future)
+- `PAYFAIT_SECRET` - For SA payments (future)
 
-#### Month 4-6: Public Launch
-- [ ] Press release to local tech publications
-- [ ] Social media campaign (LinkedIn, Twitter, Facebook)
-- [ ] Partner with university career centers
-- [ ] Launch referral program
-- [ ] Target 1,000 registered users
-- [ ] Onboard 20+ paying employers
-
-#### Month 7-12: Growth Phase
-- [ ] Content marketing (blog, SEO)
-- [ ] Paid advertising (Google, Facebook, LinkedIn)
-- [ ] Events and webinars
-- [ ] Expand to Durban, Pretoria, Port Elizabeth
-- [ ] Mobile app launch
-- [ ] Target 10,000+ users, 100+ employers
-
-#### Year 2: Scale & Expand
-- [ ] Expand to all major SA cities
-- [ ] Launch affiliate program with training providers
-- [ ] Introduce premium features
-- [ ] Explore regional expansion (Namibia, Botswana, Zimbabwe)
-- [ ] Target 50,000+ users, 500+ employers
-- [ ] Achieve profitability
-
-## Known Limitations
-
-### Current MVP Limitations
-- Filter functionality exists in UI but not connected to backend queries (logs to console only)
-- Profile editing UI exists but lacks backend mutations to save changes
-- AI Auto-Apply generates Google search URLs (not actual company application links)
-- Backend API endpoints accept client-supplied userId (needs auth middleware)
-- No actual job application submission (just tracks intent + generates cover letter)
-
-
-SUPABASE_URL- https://evdwovhikctwcjddcpzz.supabase.co
-SUPABASE_ANON-yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2ZHdvdmhpa2N0d2NqZGRjcHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5Mzc0NzIsImV4cCI6MjA2NzUxMzQ3Mn0.BTNWHzz3d9lwUOM-CaYi1O5qlu9WgTj5VR3sxVVIiUU
+### Database
+SUPABASE_URL: https://evdwovhikctwcjddcpzz.supabase.co
+SUPABASE_ANON: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2ZHdvdmhpa2N0d2NqZGRjcHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5Mzc0NzIsImV4cCI6MjA2NzUxMzQ3Mn0.BTNWHzz3d9lwUOM-CaYi1O5qlu9WgTj5VR3sxVVIiUU
