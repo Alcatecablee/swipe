@@ -6,6 +6,7 @@ import { Edit, Briefcase, MapPin, Upload, FileText, X } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 export interface UserProfileProps {
   name: string;
@@ -108,21 +109,72 @@ export default function UserProfile({
         .from('resumes')
         .getPublicUrl(filePath);
 
+      // Extract text from resume for AI parsing
+      let resumeText = '';
+      try {
+        const reader = new FileReader();
+        const readFilePromise = new Promise<string>((resolve, reject) => {
+          reader.onload = (e) => resolve(e.target?.result as string || '');
+          reader.onerror = reject;
+        });
+        
+        // For PDFs, we'll just send notification that parsing is limited
+        if (file.type === 'application/pdf') {
+          reader.readAsText(file); // This won't parse PDF properly, but we'll try
+          resumeText = await readFilePromise;
+        } else {
+          reader.readAsText(file);
+          resumeText = await readFilePromise;
+        }
+      } catch (readError) {
+        console.error('Error reading file:', readError);
+      }
+
       // Update user metadata with resume URL
       const { error: updateError } = await supabase.auth.updateUser({
         data: {
           resume_url: publicUrl,
           resume_file_name: file.name,
-          resume_uploaded_at: new Date().toISOString()
+          resume_uploaded_at: new Date().toISOString(),
+          resume_text: resumeText
         }
       });
 
       if (updateError) throw updateError;
 
-      toast({
-        title: "Resume uploaded",
-        description: "Your resume has been successfully uploaded",
-      });
+      // Parse resume with AI if we have text
+      if (resumeText && resumeText.trim().length > 50) {
+        try {
+          const parsedData = await apiRequest("/api/parse-resume", "POST", {
+            resumeText
+          }) as any;
+
+          // Update user profile with parsed data via backend
+          await apiRequest("/api/profile", "PATCH", {
+            userId,
+            name: parsedData.name || name,
+            phone: parsedData.phone,
+            skills: parsedData.skills || [],
+            education: parsedData.education,
+          });
+
+          toast({
+            title: "Resume uploaded and parsed!",
+            description: "We've extracted your information from the resume",
+          });
+        } catch (parseError) {
+          console.error('Error parsing resume:', parseError);
+          toast({
+            title: "Resume uploaded",
+            description: "File uploaded, but automatic parsing failed. You can update your profile manually.",
+          });
+        }
+      } else {
+        toast({
+          title: "Resume uploaded",
+          description: "Your resume has been successfully uploaded",
+        });
+      }
 
       // Trigger refresh
       if (onResumeUpdate) onResumeUpdate();

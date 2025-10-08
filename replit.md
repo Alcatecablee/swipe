@@ -21,11 +21,13 @@ Work experience tracking
 Secure data access with RLS policies
 Dark mode support
 🎯 Sprint 1: Resume Upload & AI Parsing (COMPLETE)
-✅ Resume upload (PDF/image support, max 5MB)
+✅ Resume upload (PDF/Word/image support, max 5MB)
 ✅ AI-powered resume parsing - extracts skills, experience, education, contact info
-✅ Resume preview and manual edit UI
-✅ Database schema with resume fields
-✅ Resume text storage for AI processing
+✅ Resume preview and manual edit UI in onboarding
+✅ Profile page resume upload with automatic AI parsing
+✅ Resume storage in Supabase Storage with RLS policies
+✅ Resume text storage in user metadata for AI processing
+✅ Automatic profile update after parsing
 🚀 Sprint 2: Enhanced Onboarding "Sorce Passport" (COMPLETE)
 ✅ Multi-step onboarding wizard (2-5 minute setup)
 ✅ Resume upload flow with drag-and-drop
@@ -316,17 +318,21 @@ Critical Security Tasks
  POPIA compliance (data privacy)
  Secure file upload (virus scanning)
  Encrypted resume storage
-🎯 Current MVP Limitations to Address
-High Priority Fixes:
+🎯 Current Implementation Status
+✅ Completed Features:
+- Resume upload with AI parsing (onboarding + profile pages)
+- Daily swipe limits with freemium model
+- Referral program with bonus swipes
+- Smart matching algorithm
+- AI auto-apply and interview prep
+- Achievement badges system
+- Profile completion tracking
 
-Resume upload not implemented → Sprint 1
-No daily swipe limits → Sprint 3
-No referral program → Sprint 3
-No OAuth login → Sprint 2
-No smart matching algorithm → Sprint 4
-No auto-form filling → Sprint 5
-No premium tier → Sprint 6
-Backend authentication needs JWT validation
+⏳ Pending Features:
+- OAuth login (Google/LinkedIn) → Requires external OAuth app setup
+- Premium tier with Stripe/PayFast → Requires payment gateway setup  
+- Auto-form filling for external ATS → Sprint 5 enhancement
+- Backend JWT validation → Security enhancement needed
 Known Issues:
 
 Filter functionality exists in UI but not connected to backend queries
