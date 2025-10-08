@@ -135,22 +135,37 @@ export default function FilterDrawer() {
           </div>
 
           <div className="space-y-3">
-            <Label>Location</Label>
+            <Label className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Province
+            </Label>
+            <Select value={province} onValueChange={setProvince}>
+              <SelectTrigger data-testid="select-province">
+                <SelectValue placeholder="Select province" />
+              </SelectTrigger>
+              <SelectContent>
+                {SA_PROVINCES.map((prov) => (
+                  <SelectItem key={prov.value} value={prov.value}>
+                    {prov.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Major Cities</Label>
             <div className="flex flex-wrap gap-2">
-              {LOCATIONS.map((location) => (
+              {SA_MAJOR_CITIES.map((city) => (
                 <Badge
-                  key={location}
-                  variant={
-                    selectedLocations.includes(location)
-                      ? "default"
-                      : "outline"
-                  }
+                  key={city.value}
+                  variant={selectedCities.includes(city.value) ? "default" : "outline"}
                   className="cursor-pointer hover-elevate active-elevate-2"
-                  onClick={() => toggleLocation(location)}
-                  data-testid={`badge-location-${location}`}
+                  onClick={() => toggleCity(city.value)}
+                  data-testid={`badge-city-${city.value}`}
                 >
-                  {location}
-                  {selectedLocations.includes(location) && (
+                  {city.label}
+                  {selectedCities.includes(city.value) && (
                     <X className="w-3 h-3 ml-1" />
                   )}
                 </Badge>
@@ -198,15 +213,60 @@ export default function FilterDrawer() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nqf">NQF Level</Label>
+            <Label htmlFor="nqf" className="flex items-center gap-2">
+              <GraduationCap className="h-4 w-4" />
+              NQF Level (Education)
+            </Label>
             <Select value={nqfLevel} onValueChange={setNqfLevel}>
               <SelectTrigger id="nqf" data-testid="select-nqf">
                 <SelectValue placeholder="Select NQF level" />
               </SelectTrigger>
               <SelectContent>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
-                  <SelectItem key={level} value={level.toString()}>
-                    Level {level}
+                {NQF_LEVELS.map((level) => (
+                  <SelectItem key={level.value} value={level.value.toString()}>
+                    {level.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2">
+              <Languages className="h-4 w-4" />
+              Languages
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              {SA_LANGUAGES.map((lang) => (
+                <Badge
+                  key={lang.value}
+                  variant={selectedLanguages.includes(lang.value) ? "default" : "outline"}
+                  className="cursor-pointer hover-elevate active-elevate-2"
+                  onClick={() => toggleLanguage(lang.value)}
+                  data-testid={`badge-language-${lang.value}`}
+                >
+                  {lang.label}
+                  {selectedLanguages.includes(lang.value) && (
+                    <X className="w-3 h-3 ml-1" />
+                  )}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="work-auth" className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4" />
+              Work Authorization
+            </Label>
+            <Select value={workAuth} onValueChange={setWorkAuth}>
+              <SelectTrigger id="work-auth" data-testid="select-work-auth">
+                <SelectValue placeholder="Select work authorization" />
+              </SelectTrigger>
+              <SelectContent>
+                {SA_WORK_AUTH.map((auth) => (
+                  <SelectItem key={auth.value} value={auth.value}>
+                    {auth.label}
                   </SelectItem>
                 ))}
               </SelectContent>
