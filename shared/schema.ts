@@ -115,6 +115,49 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Profile views - Track when employers/users view profiles
+export const profileViews = pgTable("profile_views", {
+  id: varchar("id").primaryKey().default('gen_random_uuid()'),
+  viewedUserId: varchar("viewed_user_id").notNull().references(() => users.id), // User being viewed
+  viewerUserId: varchar("viewer_user_id").references(() => users.id), // User viewing (null for employers)
+  viewerType: text("viewer_type").notNull(), // "employer", "user", "recruiter"
+  companyName: text("company_name"), // Company name if employer
+  jobId: varchar("job_id").references(() => jobs.id), // Related job if applicable
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Interview schedule - Track scheduled interviews
+export const interviewSchedule = pgTable("interview_schedule", {
+  id: varchar("id").primaryKey().default('gen_random_uuid()'),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  applicationId: varchar("application_id").references(() => applications.id),
+  jobId: varchar("job_id").references(() => jobs.id),
+  interviewType: text("interview_type").notNull(), // "phone", "video", "in_person", "technical"
+  scheduledAt: timestamp("scheduled_at").notNull(),
+  duration: integer("duration").default(60), // minutes
+  location: text("location"), // Physical address or video link
+  notes: text("notes"),
+  status: text("status").notNull().default("scheduled"), // "scheduled", "completed", "cancelled", "rescheduled"
+  reminderSent: boolean("reminder_sent").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// User analytics - Track user engagement and conversion metrics
+export const userAnalytics = pgTable("user_analytics", {
+  id: varchar("id").primaryKey().default('gen_random_uuid()'),
+  userId: varchar("user_id").notNull().references(() => users.id).unique(),
+  totalSwipes: integer("total_swipes").default(0),
+  totalApplications: integer("total_applications").default(0),
+  profileViews: integer("profile_views").default(0),
+  interviewsScheduled: integer("interviews_scheduled").default(0),
+  hiredCount: integer("hired_count").default(0),
+  applicationConversionRate: text("application_conversion_rate"), // e.g., "15%"
+  avgResponseTime: text("avg_response_time"), // e.g., "3 days"
+  profileCompletionScore: integer("profile_completion_score").default(0), // 0-100
+  lastActivityAt: timestamp("last_activity_at"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 export const insertJobSchema = createInsertSchema(jobs).omit({ id: true, createdAt: true, isActive: true });
@@ -124,6 +167,9 @@ export const insertSwipeSchema = createInsertSchema(swipes).omit({ id: true, cre
 export const insertBadgeSchema = createInsertSchema(badges).omit({ id: true, earnedAt: true });
 export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true });
 export const insertPushSubscriptionSchema = createInsertSchema(pushSubscriptions).omit({ id: true, createdAt: true });
+export const insertProfileViewSchema = createInsertSchema(profileViews).omit({ id: true, createdAt: true });
+export const insertInterviewScheduleSchema = createInsertSchema(interviewSchedule).omit({ id: true, createdAt: true });
+export const insertUserAnalyticsSchema = createInsertSchema(userAnalytics).omit({ id: true, updatedAt: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -142,3 +188,9 @@ export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;
 export type InsertPushSubscription = z.infer<typeof insertPushSubscriptionSchema>;
+export type ProfileView = typeof profileViews.$inferSelect;
+export type InsertProfileView = z.infer<typeof insertProfileViewSchema>;
+export type InterviewSchedule = typeof interviewSchedule.$inferSelect;
+export type InsertInterviewSchedule = z.infer<typeof insertInterviewScheduleSchema>;
+export type UserAnalytics = typeof userAnalytics.$inferSelect;
+export type InsertUserAnalytics = z.infer<typeof insertUserAnalyticsSchema>;
