@@ -11,6 +11,9 @@ export const users = pgTable("users", {
   nqfLevel: integer("nqf_level"),
   skills: text("skills").array(),
   languages: text("languages").array(),
+  resumeUrl: text("resume_url"),
+  resumeFileName: text("resume_file_name"),
+  resumeUploadedAt: timestamp("resume_uploaded_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -26,6 +29,7 @@ export const jobs = pgTable("jobs", {
   skills: text("skills").array().notNull(),
   nqfLevel: integer("nqf_level"),
   isActive: boolean("is_active").default(true).notNull(),
+  workType: text("work_type"),  // remote, hybrid, onsite
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -2,6 +2,7 @@ import { ArrowLeft, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import UserProfile from "@/components/UserProfile";
@@ -16,6 +17,8 @@ interface UserProfileData {
   nqf_level: number | null;
   skills: string[] | null;
   languages: string[] | null;
+  resume_url: string | null;
+  resume_file_name: string | null;
   experience?: Array<{
     id: string;
     role: string;
@@ -142,6 +145,7 @@ export default function ProfilePage() {
         <div className="max-w-3xl mx-auto">
           {profile ? (
             <UserProfile
+              userId={profile.id}
               name={profile.name || "User"}
               email={profile.email}
               location={profile.location || "Not specified"}
@@ -149,7 +153,10 @@ export default function ProfilePage() {
               languages={profile.languages || []}
               nqfLevel={profile.nqf_level || undefined}
               experience={profile.experience || []}
+              resumeUrl={profile.resume_url || undefined}
+              resumeFileName={profile.resume_file_name || undefined}
               onEdit={() => console.log("Edit profile clicked")}
+              onResumeUpdate={() => queryClient.invalidateQueries({ queryKey: ['profile', user?.id] })}
             />
           ) : (
             <div className="text-center py-12">
