@@ -79,10 +79,12 @@ export default function OnboardingPage() {
       });
       setStep("preview");
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      console.error("Upload error details:", error);
+      const errorMessage = error?.message || error?.error_description || "Failed to process resume. Please try again.";
       toast({
         title: "Upload failed",
-        description: error.message || "Failed to process resume. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -164,6 +166,15 @@ export default function OnboardingPage() {
       toast({
         title: "File too large",
         description: "Please upload a file smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user || !session) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to upload your resume.",
         variant: "destructive",
       });
       return;
