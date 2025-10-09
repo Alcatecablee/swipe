@@ -1,10 +1,16 @@
-// Backend Authentication Middleware - Sprint 10
 import type { Request, Response, NextFunction } from "express";
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+
+const supabase = supabaseUrl && supabaseServiceKey
+  ? createClient(supabaseUrl, supabaseServiceKey)
+  : null;
 
 /**
- * Middleware to extract and validate user from session (Express session-based)
- * Note: This is a placeholder for proper JWT/Supabase token verification
- * In production, this should verify JWT tokens from Supabase Auth
+ * Middleware to authenticate and validate Supabase JWT tokens
+ * Extracts user information from valid tokens and attaches to request
  */
 export async function authenticateUser(
   req: Request,
@@ -22,34 +28,42 @@ export async function authenticateUser(
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     
-    // TODO: Verify Supabase JWT token using @supabase/auth-helpers-nextjs or similar
-    // For now, we extract userId from the token payload (base64 decode middle segment)
-    // This is NOT secure for production - it's a placeholder
-    try {
-      const payload = JSON.parse(
-        Buffer.from(token.split('.')[1], 'base64').toString()
-      );
-      
-      if (payload.sub) {
-        (req as any).user = { id: payload.sub };
-        next();
-      } else {
-        return res.status(401).json({ error: "Invalid token" });
-      }
-    } catch {
-      return res.status(401).json({ error: "Invalid token format" });
+    if (!supabase) {
+      console.error("Supabase not configured - check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY");
+      return res.status(500).json({ 
+        error: "Authentication service not configured" 
+      });
     }
-  } catch (error) {
+
+    // Verify the JWT token with Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    
+    if (error || !user) {
+      console.error("Token validation failed:", error?.message);
+      return res.status(401).json({ 
+        error: "Invalid or expired token" 
+      });
+    }
+    
+    // Attach authenticated user to request
+    (req as any).user = { 
+      id: user.id,
+      email: user.email,
+      ...user.user_metadata 
+    };
+    
+    next();
+  } catch (error: any) {
     console.error("Auth middleware error:", error);
     return res.status(500).json({ 
-      error: "Authentication error" 
+      error: "Authentication error: " + (error.message || "Unknown error")
     });
   }
 }
 
 /**
  * Optional authentication - allows both authenticated and unauthenticated requests
- * but attaches user info if token is valid
+ * Attaches user info if token is valid, but doesn't block unauthenticated requests
  */
 export async function optionalAuth(
   req: Request,
@@ -59,31 +73,30 @@ export async function optionalAuth(
   try {
     const authHeader = req.headers.authorization;
     
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    if (authHeader && authHeader.startsWith('Bearer ') && supabase) {
       const token = authHeader.substring(7);
       
-      try {
-        const payload = JSON.parse(
-          Buffer.from(token.split('.')[1], 'base64').toString()
-        );
-        
-        if (payload.sub) {
-          (req as any).user = { id: payload.sub };
-        }
-      } catch {
-        // Invalid token - continue without auth
+      const { data: { user } } = await supabase.auth.getUser(token);
+      
+      if (user) {
+        (req as any).user = { 
+          id: user.id,
+          email: user.email,
+          ...user.user_metadata 
+        };
       }
     }
     
     next();
   } catch (error) {
-    // Don't fail on auth errors for optional auth
+    // Don't fail on auth errors for optional auth - just continue without user
     next();
   }
 }
 
 /**
- * Validate that the authenticated user matches the userId in request params
+ * Validate that the authenticated user matches the userId in request params/body
+ * This prevents users from accessing other users' data
  */
 export function validateUserAccess(
   req: Request,
@@ -106,4 +119,12 @@ export function validateUserAccess(
   }
   
   next();
+}
+
+/**
+ * Extract userId from authenticated request
+ * Use this instead of accepting userId from request body
+ */
+export function getUserId(req: Request): string | null {
+  return (req as any).user?.id || null;
 }

@@ -9,6 +9,7 @@ import Stripe from "stripe";
 import { initializeStorageBucket } from "./supabase-admin";
 import multer from "multer";
 import { processResumeFile } from "./resume-processor";
+import { authenticateUser, validateUserAccess, getUserId } from "./auth-middleware";
 
 // Initialize Stripe (reference: blueprint:javascript_stripe)
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -67,9 +68,9 @@ const updateProfileSchema = z.object({
 });
 
 // Get matched jobs for user (with smart ranking)
-router.get("/api/jobs/:userId", async (req: Request, res: Response) => {
+router.get("/api/jobs/:userId", authenticateUser, validateUserAccess, async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId = getUserId(req)!;
 
     // Get user profile for matching
     const [user] = await db
@@ -282,10 +283,10 @@ async function processSingleApplication(userId: string, jobId: string, applicati
   return { coverLetter, applicationUrl };
 }
 
-router.post("/api/process-application", async (req: Request, res: Response) => {
+router.post("/api/process-application", authenticateUser, async (req: Request, res: Response) => {
   try {
-    const validated = processApplicationSchema.parse(req.body);
-    const { userId, jobId, applicationId } = validated;
+    const userId = getUserId(req)!;
+    const { jobId, applicationId } = req.body;
 
     const result = await processSingleApplication(userId, jobId, applicationId);
 
@@ -304,10 +305,9 @@ router.post("/api/process-application", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/api/batch-process-applications", async (req: Request, res: Response) => {
+router.post("/api/batch-process-applications", authenticateUser, async (req: Request, res: Response) => {
   try {
-    const validated = batchProcessSchema.parse(req.body);
-    const { userId } = validated;
+    const userId = getUserId(req)!;
 
     // Fetch pending applications
     const pendingApplications = await db
@@ -393,16 +393,13 @@ router.post("/api/parse-resume", async (req: Request, res: Response) => {
 });
 
 // Upload and process resume file (PDF/Image)
-router.post("/api/upload-resume", upload.single('resume'), async (req: Request, res: Response) => {
+router.post("/api/upload-resume", authenticateUser, upload.single('resume'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    const userId = req.body.userId;
-    if (!userId) {
-      return res.status(400).json({ error: "userId is required" });
-    }
+    const userId = getUserId(req)!;
 
     // Initialize storage bucket if needed
     await initializeStorageBucket('resumes');
@@ -455,10 +452,10 @@ router.post("/api/upload-resume", upload.single('resume'), async (req: Request, 
 });
 
 // Update user profile
-router.patch("/api/profile", async (req: Request, res: Response) => {
+router.patch("/api/profile", authenticateUser, async (req: Request, res: Response) => {
   try {
-    const validated = updateProfileSchema.parse(req.body);
-    const { userId, ...profileData } = validated;
+    const userId = getUserId(req)!;
+    const profileData = req.body;
 
     // Remove undefined values
     const cleanData = Object.fromEntries(
@@ -488,9 +485,9 @@ router.patch("/api/profile", async (req: Request, res: Response) => {
 });
 
 // Get user profile
-router.get("/api/profile/:userId", async (req: Request, res: Response) => {
+router.get("/api/profile/:userId", authenticateUser, validateUserAccess, async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId = getUserId(req)!;
 
     const [user] = await db
       .select()
@@ -510,9 +507,9 @@ router.get("/api/profile/:userId", async (req: Request, res: Response) => {
 });
 
 // Check swipe limits
-router.get("/api/swipe-limits/:userId", async (req: Request, res: Response) => {
+router.get("/api/swipe-limits/:userId", authenticateUser, validateUserAccess, async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId = getUserId(req)!;
     const limitInfo = await checkAndUpdateSwipeLimit(userId);
     
     res.json(limitInfo);
@@ -523,9 +520,10 @@ router.get("/api/swipe-limits/:userId", async (req: Request, res: Response) => {
 });
 
 // Create swipe (with limit enforcement)
-router.post("/api/swipe", async (req: Request, res: Response) => {
+router.post("/api/swipe", authenticateUser, async (req: Request, res: Response) => {
   try {
-    const { userId, jobId, action } = req.body;
+    const userId = getUserId(req)!;
+    const { jobId, action } = req.body;
 
     if (!userId || !jobId || !action) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -632,12 +630,13 @@ function generateReferralCode(userId: string): string {
 }
 
 // Apply referral code
-router.post("/api/apply-referral", async (req: Request, res: Response) => {
+router.post("/api/apply-referral", authenticateUser, async (req: Request, res: Response) => {
   try {
-    const { userId, referralCode } = req.body;
+    const userId = getUserId(req)!;
+    const { referralCode } = req.body;
 
-    if (!userId || !referralCode) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!referralCode) {
+      return res.status(400).json({ error: "Missing referral code" });
     }
 
     // Find user with this referral code
@@ -695,9 +694,9 @@ router.post("/api/apply-referral", async (req: Request, res: Response) => {
 });
 
 // Get referral stats
-router.get("/api/referral-stats/:userId", async (req: Request, res: Response) => {
+router.get("/api/referral-stats/:userId", authenticateUser, validateUserAccess, async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId = getUserId(req)!;
 
     const [user] = await db
       .select()
@@ -738,9 +737,9 @@ router.get("/api/referral-stats/:userId", async (req: Request, res: Response) =>
 });
 
 // Get user badges
-router.get("/api/badges/:userId", async (req: Request, res: Response) => {
+router.get("/api/badges/:userId", authenticateUser, validateUserAccess, async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId = getUserId(req)!;
     const { getUserBadges } = await import("./badge-service");
     const userBadges = await getUserBadges(userId);
     res.json(userBadges);
@@ -751,12 +750,13 @@ router.get("/api/badges/:userId", async (req: Request, res: Response) => {
 });
 
 // Auto-apply: Generate application data for external ATS
-router.post("/api/generate-application-data", async (req: Request, res: Response) => {
+router.post("/api/generate-application-data", authenticateUser, async (req: Request, res: Response) => {
   try {
-    const { userId, jobId } = req.body;
+    const userId = getUserId(req)!;
+    const { jobId } = req.body;
 
-    if (!userId || !jobId) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!jobId) {
+      return res.status(400).json({ error: "Missing jobId" });
     }
 
     const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
