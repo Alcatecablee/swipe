@@ -44,6 +44,9 @@ export const jobs = pgTable("jobs", {
   nqfLevel: integer("nqf_level"),
   isActive: boolean("is_active").default(true).notNull(),
   workType: text("work_type"),  // remote, hybrid, onsite
+  applicationUrl: text("application_url"), // URL to apply on external site
+  applicationEmail: text("application_email"), // Email for direct applications
+  applicationMethod: text("application_method"), // 'email', 'url', 'unknown'
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -52,9 +55,12 @@ export const applications = pgTable("applications", {
   id: varchar("id").primaryKey().default('gen_random_uuid()'),
   userId: varchar("user_id").notNull().references(() => users.id),
   jobId: varchar("job_id").notNull().references(() => jobs.id),
-  status: text("status").notNull().default("pending"), // pending, reviewing, interview, accepted, rejected, auto_applied
+  status: text("status").notNull().default("pending"), // pending, reviewing, interview, accepted, rejected, submitted, failed
   coverLetter: text("cover_letter"),
   applicationUrl: text("application_url"),
+  submissionMethod: text("submission_method"), // 'email', 'manual', 'api', 'automated'
+  emailSentTo: text("email_sent_to"), // Email address where application was sent
+  emailMessageId: text("email_message_id"), // Email service message ID for tracking
   aiProcessed: boolean("ai_processed").default(false).notNull(),
   appliedAt: timestamp("applied_at").defaultNow().notNull(),
 });
