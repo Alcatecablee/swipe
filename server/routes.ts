@@ -254,18 +254,73 @@ async function processSingleApplication(userId: string, jobId: string, applicati
     throw new Error("Generated cover letter is too short or empty");
   }
 
-  const applicationUrl = `https://www.google.com/search?q=${encodeURIComponent(
-    `${job.company} ${job.title} application South Africa`
-  )}`;
+  // Import email service for real application submission
+  const { canApplyViaEmail, sendEmailApplication, getJobApplicationEmail, detectApplicationMethod } = await import("./email-service");
+  const { enrichJobWithApplicationData } = await import("./job-enrichment-service");
+  
+  // Enrich job with application data
+  const enrichedJob = enrichJobWithApplicationData(job);
+  const applicationMethod = detectApplicationMethod(enrichedJob);
+  
+  let applicationUrl = '';
+  let submissionMethod = 'manual';
+  let applicationStatus = 'pending';
+  let emailSentTo: string | null = null;
+  let emailMessageId: string | null = null;
 
-  // Update the application with AI-generated content
+  // Attempt email application if possible
+  if (applicationMethod === 'email' && canApplyViaEmail(enrichedJob)) {
+    const emailAddress = getJobApplicationEmail(enrichedJob);
+    
+    if (emailAddress) {
+      console.log(`Attempting email application to ${emailAddress} for job ${job.title}`);
+      
+      const emailResult = await sendEmailApplication({
+        user,
+        job: enrichedJob,
+        coverLetter,
+        resumeUrl: user.resumeUrl || undefined,
+      });
+
+      if (emailResult.success) {
+        applicationUrl = `mailto:${emailAddress}`;
+        submissionMethod = 'email';
+        applicationStatus = 'submitted';
+        emailSentTo = emailAddress;
+        emailMessageId = emailResult.messageId || null;
+        
+        console.log(`Email application sent successfully. Message ID: ${emailResult.messageId}`);
+      } else {
+        console.error(`Email application failed: ${emailResult.error}`);
+        // Fall back to manual application
+        applicationUrl = enrichedJob.applicationUrl || createFallbackSearchUrl(job);
+        submissionMethod = 'manual';
+        applicationStatus = 'pending';
+      }
+    }
+  } else if (enrichedJob.applicationUrl && !enrichedJob.applicationUrl.includes('google.com/search')) {
+    // Use provided application URL
+    applicationUrl = enrichedJob.applicationUrl;
+    submissionMethod = 'manual';
+    applicationStatus = 'pending';
+  } else {
+    // Fallback: Create smart search URL
+    applicationUrl = createFallbackSearchUrl(job);
+    submissionMethod = 'manual';
+    applicationStatus = 'pending';
+  }
+
+  // Update the application with AI-generated content and submission info
   const [updatedApp] = await db
     .update(applications)
     .set({
       coverLetter: coverLetter,
       applicationUrl: applicationUrl,
+      submissionMethod: submissionMethod,
+      emailSentTo: emailSentTo,
+      emailMessageId: emailMessageId,
       aiProcessed: true,
-      status: "auto_applied",
+      status: applicationStatus,
     })
     .where(
       and(
@@ -280,7 +335,20 @@ async function processSingleApplication(userId: string, jobId: string, applicati
     throw new Error("Update failed - application may have been modified");
   }
 
-  return { coverLetter, applicationUrl };
+  return { 
+    coverLetter, 
+    applicationUrl,
+    submissionMethod,
+    status: applicationStatus,
+    emailSent: submissionMethod === 'email',
+    emailAddress: emailSentTo,
+  };
+}
+
+// Helper function to create fallback search URL
+function createFallbackSearchUrl(job: Job): string {
+  const searchQuery = `${job.company} ${job.title} apply South Africa site:linkedin.com OR site:pnet.co.za OR site:careers24.com`;
+  return `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
 }
 
 router.post("/api/process-application", authenticateUser, async (req: Request, res: Response) => {
@@ -816,7 +884,7 @@ router.post("/api/send-email-application", authenticateUser, async (req: Request
   }
 });
 
-// Check if job supports email applications
+// Check if job supports email applications (Enhanced)
 router.get("/api/job-email-support/:jobId", authenticateUser, async (req: Request, res: Response) => {
   try {
     const { jobId } = req.params;
@@ -827,11 +895,19 @@ router.get("/api/job-email-support/:jobId", authenticateUser, async (req: Reques
       return res.status(404).json({ error: "Job not found" });
     }
 
-    const { canApplyViaEmail, getJobApplicationEmail } = await import("./email-service");
+    const { canApplyViaEmail, getJobApplicationEmail, detectApplicationMethod } = await import("./email-service");
+    const { canAutoApply } = await import("./job-enrichment-service");
+    
+    const autoApplyInfo = canAutoApply(job);
+    const applicationMethod = detectApplicationMethod(job);
     
     res.json({
       supportsEmail: canApplyViaEmail(job),
       email: getJobApplicationEmail(job),
+      applicationMethod,
+      canAutoApply: autoApplyInfo.canApply,
+      autoApplyMethod: autoApplyInfo.method,
+      reason: autoApplyInfo.reason,
     });
   } catch (error: any) {
     console.error("Error checking email support:", error);

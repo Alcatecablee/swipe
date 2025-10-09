@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Briefcase, DollarSign, X, Check, Home, Laptop, Users } from "lucide-react";
+import { MapPin, Briefcase, DollarSign, X, Check, Home, Laptop, Users, Mail, Zap } from "lucide-react";
 import { useState } from "react";
 
 export interface JobCardProps {
@@ -16,6 +16,8 @@ export interface JobCardProps {
   workType?: string | null;
   sector?: string | null;
   nqfLevel?: number | null;
+  applicationEmail?: string | null;
+  applicationMethod?: string | null;
   onSkip?: () => void;
   onApply?: () => void;
   swipeDirection?: "left" | "right" | null;
@@ -32,11 +34,15 @@ export default function JobCard({
   workType,
   sector,
   nqfLevel,
+  applicationEmail,
+  applicationMethod,
   onSkip,
   onApply,
   swipeDirection,
 }: JobCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  
+  const canAutoApply = applicationMethod === 'email' && applicationEmail;
 
   const getWorkTypeIcon = () => {
     if (!workType) return null;
@@ -112,12 +118,24 @@ export default function JobCard({
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h2
-              className="text-2xl font-semibold text-primary truncate"
-              data-testid="text-job-title"
-            >
-              {title}
-            </h2>
+            <div className="flex items-start gap-2">
+              <h2
+                className="text-2xl font-semibold text-primary truncate flex-1"
+                data-testid="text-job-title"
+              >
+                {title}
+              </h2>
+              {canAutoApply && (
+                <Badge 
+                  variant="default" 
+                  className="bg-green-600 hover:bg-green-700 text-white gap-1 flex-shrink-0 animate-pulse"
+                  data-testid="badge-instant-apply"
+                >
+                  <Zap className="w-3 h-3" />
+                  Instant Apply
+                </Badge>
+              )}
+            </div>
             <p
               className="text-base text-muted-foreground truncate"
               data-testid="text-company-name"
@@ -205,13 +223,22 @@ export default function JobCard({
           </Button>
           <Button
             variant="default"
-            className="flex-1"
+            className={`flex-1 ${canAutoApply ? 'bg-green-600 hover:bg-green-700' : ''}`}
             size="lg"
             onClick={onApply}
             data-testid="button-apply"
           >
-            <Check className="w-5 h-5 mr-2" />
-            Apply
+            {canAutoApply ? (
+              <>
+                <Mail className="w-5 h-5 mr-2" />
+                Instant Apply
+              </>
+            ) : (
+              <>
+                <Check className="w-5 h-5 mr-2" />
+                Apply
+              </>
+            )}
           </Button>
         </div>
       </div>
