@@ -30,19 +30,19 @@ export const BADGE_DEFINITIONS = {
   },
   application_streak_5: {
     badgeType: "application_streak_5",
-    title: "Rising Star",
+    title: "Career Climber",
     description: "Applied to 5 jobs",
-    iconName: "Star",
+    iconName: "TrendingUp",
   },
   application_streak_10: {
     badgeType: "application_streak_10",
-    title: "Career Climber",
+    title: "Career Climber Pro",
     description: "Applied to 10 jobs",
     iconName: "TrendingUp",
   },
   application_streak_25: {
     badgeType: "application_streak_25",
-    title: "Application Expert",
+    title: "Career Climber Elite",
     description: "Applied to 25 jobs - you're unstoppable!",
     iconName: "Trophy",
   },

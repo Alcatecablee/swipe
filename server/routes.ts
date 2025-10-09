@@ -91,13 +91,15 @@ router.get("/api/jobs/:userId", async (req: Request, res: Response) => {
     const swipedJobIds = swipedJobs.map((s) => s.jobId);
 
     // Get active jobs that haven't been swiped yet
-    let query = db.select().from(jobs).where(eq(jobs.isActive, true));
+    const whereConditions = swipedJobIds.length > 0
+      ? and(eq(jobs.isActive, true), not(inArray(jobs.id, swipedJobIds)))
+      : eq(jobs.isActive, true);
 
-    if (swipedJobIds.length > 0) {
-      query = query.where(not(inArray(jobs.id, swipedJobIds))) as any;
-    }
-
-    const availableJobs = await query.limit(50);
+    const availableJobs = await db
+      .select()
+      .from(jobs)
+      .where(whereConditions)
+      .limit(50);
 
     // Apply smart matching algorithm to rank jobs
     const rankedJobs = rankJobsByMatch(user, availableJobs);
@@ -940,7 +942,7 @@ router.post("/api/create-subscription", async (req: Request, res: Response) => {
           recurring: {
             interval: 'month',
           },
-        },
+        } as any, // Type assertion for Stripe API version compatibility
       }],
       payment_behavior: 'default_incomplete',
       payment_settings: { save_default_payment_method: 'on_subscription' },

@@ -43,6 +43,25 @@ export function calculateSkillOverlap(
 }
 
 /**
+ * Extract experience level keywords from text (job title, description, etc.)
+ */
+function extractExperienceLevelFromText(text: string): string | null {
+  if (!text) return null;
+  
+  const lowerText = text.toLowerCase();
+  const experienceLevels = ['principal', 'lead', 'senior', 'mid', 'junior', 'entry'];
+  
+  // Search for experience keywords in order of seniority
+  for (const level of experienceLevels) {
+    if (lowerText.includes(level)) {
+      return level;
+    }
+  }
+  
+  return null;
+}
+
+/**
  * Check if user's experience level matches job requirements
  */
 export function checkExperienceMatch(
@@ -132,10 +151,20 @@ export function calculateJobMatchScore(user: User, job: Job): MatchScore {
   // Calculate skill overlap
   const skillMatch = calculateSkillOverlap(userSkills, jobSkills);
 
+  // Extract experience level from job description/title if present
+  const jobExperienceHint = extractExperienceLevelFromText(
+    `${job.title} ${job.description}`
+  );
+  
+  // Get user's experience level from their preferred title or work history
+  const userExperienceHint = user.preferredJobTitle 
+    ? extractExperienceLevelFromText(user.preferredJobTitle)
+    : null;
+  
   // Check other factors
   const experienceMatch = checkExperienceMatch(
-    user.preferredJobTitle || null,
-    null // Jobs don't have experience level in schema yet
+    userExperienceHint,
+    jobExperienceHint
   );
 
   // Parse salary from preferredSalary string (e.g., "R50000")
