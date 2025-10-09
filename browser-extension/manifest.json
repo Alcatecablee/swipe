@@ -1,0 +1,70 @@
+{
+  "manifest_version": 3,
+  "name": "SwipeJob Auto-Fill Assistant",
+  "version": "1.0.0",
+  "description": "Automatically fill job application forms with your SwipeJob profile data. Save time and apply faster!",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*.pnet.co.za/*",
+    "*://*.careers24.com/*",
+    "*://*.indeed.com/*",
+    "*://*.indeed.co.za/*",
+    "*://*.linkedin.com/*",
+    "*://*.gumtree.co.za/*",
+    "*://*.jobmail.co.za/*",
+    "*://*.careerjet.co.za/*",
+    "*://*.jobjack.co.za/*",
+    "*://*.bizcommunity.com/*"
+  ],
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.pnet.co.za/*",
+        "*://*.careers24.com/*",
+        "*://*.indeed.com/*",
+        "*://*.indeed.co.za/*",
+        "*://*.linkedin.com/*",
+        "*://*.gumtree.co.za/*",
+        "*://*.jobmail.co.za/*",
+        "*://*.careerjet.co.za/*",
+        "*://*.jobjack.co.za/*",
+        "*://*.bizcommunity.com/*",
+        "*://*.greenhouse.io/*",
+        "*://*.lever.co/*",
+        "*://*.workday.com/*",
+        "*://*.myworkdayjobs.com/*",
+        "*://*.smartrecruiters.com/*",
+        "*://*.breezy.hr/*"
+      ],
+      "js": ["scripts/content.js"],
+      "css": ["styles/content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["styles/content.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

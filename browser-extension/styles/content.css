@@ -1,0 +1,119 @@
+/* SwipeJob Auto-Fill - Visual Feedback Styles */
+
+/* Filled fields highlight */
+.swipejob-filled {
+  border: 2px solid #10b981 !important;
+  background-color: #d1fae5 !important;
+  transition: all 0.3s ease;
+}
+
+.swipejob-filled:focus {
+  outline: 2px solid #10b981 !important;
+  outline-offset: 2px;
+}
+
+/* Notification overlay */
+.swipejob-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  max-width: 400px;
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 999999;
+  animation: swipejob-slide-in 0.3s ease-out;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+.swipejob-notification--info {
+  border-left: 4px solid #3b82f6;
+}
+
+.swipejob-notification--success {
+  border-left: 4px solid #10b981;
+}
+
+.swipejob-notification--warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.swipejob-notification--error {
+  border-left: 4px solid #ef4444;
+}
+
+.swipejob-notification__icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.swipejob-notification__message {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #1f2937;
+}
+
+.swipejob-notification__close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: background-color 0.2s;
+}
+
+.swipejob-notification__close:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.swipejob-notification--fade-out {
+  animation: swipejob-slide-out 0.3s ease-out forwards;
+}
+
+@keyframes swipejob-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes swipejob-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .swipejob-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+}
