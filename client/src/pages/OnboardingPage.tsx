@@ -27,7 +27,7 @@ interface ParsedResume {
 
 export default function OnboardingPage() {
   const [, setLocation] = useLocation();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { toast } = useToast();
   const [step, setStep] = useState<OnboardingStep>("welcome");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -48,8 +48,15 @@ export default function OnboardingPage() {
       formData.append('resume', file);
       formData.append('userId', user?.id || '');
 
+      // Get auth token from session
+      const headers: HeadersInit = {};
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
       const response = await fetch('/api/upload-resume', {
         method: 'POST',
+        headers,
         body: formData,
       });
 
@@ -83,9 +90,15 @@ export default function OnboardingPage() {
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Get auth token from session
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
       const response = await fetch('/api/profile', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(data),
       });
 

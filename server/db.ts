@@ -1,6 +1,7 @@
-import { drizzle } from "drizzle-orm/neon-serverless";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "@shared/schema";
-import { Pool } from "@neondatabase/serverless";
+import pkg from "pg";
+const { Pool } = pkg;
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not set");
