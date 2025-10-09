@@ -776,6 +776,137 @@ router.post("/api/generate-application-data", authenticateUser, async (req: Requ
   }
 });
 
+// Email application: Send application via email
+router.post("/api/send-email-application", authenticateUser, async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req)!;
+    const { jobId, coverLetter } = req.body;
+
+    if (!jobId || !coverLetter) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
+
+    if (!user || !job) {
+      return res.status(404).json({ error: "User or job not found" });
+    }
+
+    const { sendEmailApplication, canApplyViaEmail } = await import("./email-service");
+    
+    if (!canApplyViaEmail(job)) {
+      return res.status(400).json({ error: "This job does not accept email applications" });
+    }
+
+    await sendEmailApplication({
+      user,
+      job,
+      coverLetter,
+      resumeUrl: user.resumeUrl || undefined,
+    });
+
+    res.json({ 
+      success: true, 
+      message: "Application sent successfully via email" 
+    });
+  } catch (error: any) {
+    console.error("Error sending email application:", error);
+    res.status(500).json({ error: error.message || "Failed to send email application" });
+  }
+});
+
+// Check if job supports email applications
+router.get("/api/job-email-support/:jobId", authenticateUser, async (req: Request, res: Response) => {
+  try {
+    const { jobId } = req.params;
+
+    const [job] = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
+
+    if (!job) {
+      return res.status(404).json({ error: "Job not found" });
+    }
+
+    const { canApplyViaEmail, getJobApplicationEmail } = await import("./email-service");
+    
+    res.json({
+      supportsEmail: canApplyViaEmail(job),
+      email: getJobApplicationEmail(job),
+    });
+  } catch (error: any) {
+    console.error("Error checking email support:", error);
+    res.status(500).json({ error: error.message || "Failed to check email support" });
+  }
+});
+
+// CSV Import: Download template
+router.get("/api/job-import-template", (req: Request, res: Response) => {
+  try {
+    const { generateCSVTemplate } = require("./job-importer");
+    const template = generateCSVTemplate();
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="job_import_template.csv"');
+    res.send(template);
+  } catch (error: any) {
+    console.error("Error generating template:", error);
+    res.status(500).json({ error: "Failed to generate template" });
+  }
+});
+
+// CSV Import: Upload and import jobs
+router.post("/api/import-jobs-csv", authenticateUser, upload.single('csvFile'), async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req)!;
+    
+    // TODO: Add admin check here when implementing employer features
+    // For now, any authenticated user can import (development only)
+    
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const csvContent = req.file.buffer.toString('utf-8');
+    const { importJobsFromCSV } = await import("./job-importer");
+    const result = await importJobsFromCSV(csvContent);
+
+    res.json({
+      success: true,
+      message: `Successfully imported ${result.success} jobs. ${result.failed} failed.`,
+      details: result,
+    });
+  } catch (error: any) {
+    console.error("Error importing jobs:", error);
+    res.status(500).json({ error: error.message || "Failed to import jobs" });
+  }
+});
+
+// Application Tracking: Get timeline
+router.get("/api/application-timeline/:userId", authenticateUser, validateUserAccess, async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req)!;
+    const { getApplicationTimeline } = await import("./application-tracker");
+    const timeline = await getApplicationTimeline(userId);
+    res.json(timeline);
+  } catch (error: any) {
+    console.error("Error fetching application timeline:", error);
+    res.status(500).json({ error: error.message || "Failed to fetch timeline" });
+  }
+});
+
+// Application Tracking: Get success metrics
+router.get("/api/success-metrics/:userId", authenticateUser, validateUserAccess, async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req)!;
+    const { getSuccessMetrics } = await import("./application-tracker");
+    const metrics = await getSuccessMetrics(userId);
+    res.json(metrics);
+  } catch (error: any) {
+    console.error("Error fetching success metrics:", error);
+    res.status(500).json({ error: error.message || "Failed to fetch metrics" });
+  }
+});
+
 // Auto-apply: Extract ATS keywords from job
 router.post("/api/extract-ats-keywords", async (req: Request, res: Response) => {
   try {

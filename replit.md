@@ -13,7 +13,7 @@ A Tinder-style job application platform with AI auto-apply for the South African
 
 ## Current Features (MVP - October 2025)
 
-### ✅ Implemented (Sprint 1-6 Complete!)
+### ✅ Implemented (Sprint 1-7 Complete + Phase 2 Features!)
 
 #### Core Platform Features
 - **Swipe interface** for job applications (apply/skip)
@@ -23,8 +23,45 @@ A Tinder-style job application platform with AI auto-apply for the South African
 - **Application tracking** with status updates
 - **User profiles** with skills, location, NQF level, languages
 - **Work experience** tracking
-- **Secure data access** with RLS policies
+- **Secure data access** with RLS policies + **JWT authentication middleware**
 - **Dark mode** support
+
+#### 🔐 PHASE 2: SECURITY & PRODUCTION READY (COMPLETE - Oct 2025)
+- ✅ **JWT Authentication Middleware** - Supabase token validation on all protected routes
+- ✅ **Security hardening** - getUserId() from authenticated token, not request body
+- ✅ **validateUserAccess** - Prevents cross-user data access
+- ✅ **Auth headers** - Frontend sends Bearer tokens automatically
+
+#### 📧 PHASE 2: EMAIL APPLICATION AUTOMATION (COMPLETE - Oct 2025)
+- ✅ **Email application service** - Send applications directly via email (Nodemailer)
+- ✅ **Email detection** - Auto-detect if job accepts email applications
+- ✅ **Professional email templates** - HTML formatted with resume attachment
+- ✅ **POPIA compliance** - Email notice with data protection rights
+- ✅ **Gmail/SMTP support** - Configurable email service
+
+#### 🎯 PHASE 2: ASSISTED APPLY FLOW (COMPLETE - Oct 2025)
+- ✅ **Assisted Apply Modal** - Legal alternative to Puppeteer/browser automation
+- ✅ **AI-generated cover letter** - Pre-filled with job-specific content
+- ✅ **Application data pre-fill** - Name, email, phone, location, qualifications
+- ✅ **Copy-to-clipboard** - Easy paste into external ATS forms
+- ✅ **POPIA compliance notices** - Context-specific privacy alerts (signup, apply, resume)
+- ✅ **Information Officer contact** - Legal compliance for POPIA
+- ✅ **Open application page** - Direct link to job board
+
+#### 📊 PHASE 2: APPLICATION SUCCESS TRACKING (COMPLETE - Oct 2025)
+- ✅ **Application timeline** - Track all applications with status and dates
+- ✅ **Success metrics API** - Response rate, interview rate, offer rate
+- ✅ **Average response time** - Days until first employer response
+- ✅ **Top performing sectors** - Which industries have best success rates
+- ✅ **Weekly trends** - Application and interview patterns over 4 weeks
+- ✅ **Next action recommendations** - AI suggests follow-up actions
+
+#### 📥 PHASE 2: CSV JOB IMPORTER (COMPLETE - Oct 2025)
+- ✅ **CSV template generator** - Download template for bulk job import
+- ✅ **CSV parser** - Handles quoted values, comma-separated skills
+- ✅ **Bulk job import** - Upload CSV to add multiple jobs at once
+- ✅ **Import validation** - Checks required fields (title, company, location, description)
+- ✅ **Error reporting** - Detailed feedback on import success/failures
 
 #### 🎯 Sprint 1: Resume Upload & AI Parsing (COMPLETE)
 - ✅ Resume upload (PDF/image support, max 5MB)
@@ -110,40 +147,58 @@ A Tinder-style job application platform with AI auto-apply for the South African
 
 ## API Endpoints (Express Backend)
 
-### Resume & Profile
+### Resume & Profile (🔒 = Auth Required)
 - `POST /api/parse-resume` - AI resume parsing (Groq)
-- `POST /api/profile` - Update user profile
-- `GET /api/profile/:userId` - Get user profile
+- `PATCH /api/profile` 🔒 - Update user profile
+- `GET /api/profile/:userId` 🔒 - Get user profile
+- `POST /api/upload-resume` 🔒 - Upload and process resume file
 
-### Smart Matching & Swipes
-- `GET /api/jobs/:userId` - Get ranked job matches (smart algorithm)
-- `GET /api/swipe-limits/:userId` - Check remaining swipes
-- `POST /api/swipe` - Create swipe (with limit enforcement & badge checks)
+### Smart Matching & Swipes (🔒 = Auth Required)
+- `GET /api/jobs/:userId` 🔒 - Get ranked job matches (smart algorithm)
+- `GET /api/swipe-limits/:userId` 🔒 - Check remaining swipes
+- `POST /api/swipe` 🔒 - Create swipe (with limit enforcement & badge checks)
 
-### Badges & Referrals
-- `GET /api/badges/:userId` - Get user badges
-- `POST /api/apply-referral` - Apply referral code for bonus swipes
-- `GET /api/referral-stats/:userId` - Get referral statistics
+### Badges & Referrals (🔒 = Auth Required)
+- `GET /api/badges/:userId` 🔒 - Get user badges
+- `POST /api/apply-referral` 🔒 - Apply referral code for bonus swipes
+- `GET /api/referral-stats/:userId` 🔒 - Get referral statistics
 
-### AI Auto-Apply & Interview Prep
-- `POST /api/generate-application-data` - Generate ATS form data
+### AI Auto-Apply & Interview Prep (🔒 = Auth Required)
+- `POST /api/generate-application-data` 🔒 - Generate ATS form data
 - `POST /api/extract-ats-keywords` - Extract job keywords
 - `POST /api/generate-interview-questions` - AI interview prep
 - `POST /api/interview-answer-suggestion` - Get answer coaching
 - `POST /api/analyze-interview-answer` - Practice answer feedback
 
-### Cover Letters & Applications
+### Cover Letters & Applications (🔒 = Auth Required)
 - `POST /api/generate-cover-letter` - AI cover letter generation
-- `POST /api/batch-process` - Batch process pending applications
+- `POST /api/process-application` 🔒 - Process single application
+- `POST /api/batch-process-applications` 🔒 - Batch process pending applications
+
+### Email Applications (🔒 = Auth Required - Phase 2)
+- `POST /api/send-email-application` 🔒 - Send application via email
+- `GET /api/job-email-support/:jobId` 🔒 - Check if job accepts email applications
+
+### Job Import & Management
+- `GET /api/job-import-template` - Download CSV template
+- `POST /api/import-jobs-csv` 🔒 - Upload CSV to bulk import jobs
+
+### Application Tracking (🔒 = Auth Required - Phase 2)
+- `GET /api/application-timeline/:userId` 🔒 - Get application timeline
+- `GET /api/success-metrics/:userId` 🔒 - Get success metrics and analytics
 
 ## Important Notes
 
 - **AI Service**: Groq API key required (`GROQ_API_KEY`)
-- **Supabase**: Credentials in Replit Secrets (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
+- **Supabase**: Credentials in Replit Secrets (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`)
 - **Payment Gateway**: Stripe integration ready (requires SA-compatible alternative like PayFast for South African users)
 - **SQL Setup**: Schema in `supabase-schema.sql`, trigger in `supabase-trigger.sql`
 - **RLS Policies**: Must be configured in Supabase for data security
 - **Column Naming**: Database uses snake_case, frontend uses camelCase
+- **Email Service (Optional)**: Configure `EMAIL_USER` and `EMAIL_PASSWORD` for email applications
+  - Gmail: Use App-Specific Password (https://support.google.com/accounts/answer/185833)
+  - Alternative SMTP: Configure `EMAIL_SERVICE` environment variable
+  - **SECURITY**: Store credentials in Replit Secrets, never commit to repo
 
 ## Enhanced Product Roadmap - Sorce-Inspired Vision
 
@@ -422,9 +477,13 @@ A Tinder-style job application platform with AI auto-apply for the South African
 ### Required Secrets
 - `VITE_SUPABASE_URL` - Supabase project URL
 - `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
+- `SUPABASE_SERVICE_ROLE_KEY` - For server-side auth validation
 - `GROQ_API_KEY` - Groq AI API key for cover letter generation
 - `STRIPE_SECRET_KEY` - For premium subscriptions (future)
 - `PAYFAIT_SECRET` - For SA payments (future)
+- `EMAIL_USER` - Gmail/SMTP email for sending applications (optional)
+- `EMAIL_PASSWORD` - App-specific password for email service (optional)
+- `EMAIL_SERVICE` - Email service provider (default: gmail)
 
 ### Database
 SUPABASE_URL: https://evdwovhikctwcjddcpzz.supabase.co

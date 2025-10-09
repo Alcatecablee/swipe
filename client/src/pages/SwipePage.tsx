@@ -5,14 +5,14 @@ import { supabase } from "@/lib/supabase";
 import JobCard from "@/components/JobCard";
 import FilterDrawer from "@/components/FilterDrawer";
 import ThemeToggle from "@/components/ThemeToggle";
-import ApplicationTemplateDialog from "@/components/ApplicationTemplateDialog";
+import AssistedApplyModal from "@/components/AssistedApplyModal";
 import { User, BarChart3, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Job } from "@shared/schema";
+import type { Job, User as UserType } from "@shared/schema";
 
 export default function SwipePage() {
   const [, setLocation] = useLocation();
@@ -23,36 +23,21 @@ export default function SwipePage() {
     "left" | "right" | null
   >(null);
   const [showApplicationDialog, setShowApplicationDialog] = useState(false);
-  const [isProcessingApplication, setIsProcessingApplication] = useState(false);
+  const [coverLetter, setCoverLetter] = useState<string>("");
+  const [applicationData, setApplicationData] = useState<any>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const { data: userProfile } = useQuery({
-    queryKey: ['profile', user?.id],
+  const { data: userProfile } = useQuery<UserType>({
+    queryKey: ['/api/profile', user?.id],
     enabled: !!user?.id,
-    queryFn: async () => {
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user!.id)
-        .single();
-
-      if (userError) throw userError;
-
-      const { data: experience, error: expError } = await supabase
-        .from('user_experience')
-        .select('*')
-        .eq('user_id', user!.id)
-        .order('created_at', { ascending: false });
-
-      if (expError) throw expError;
-
-      return { ...userData, experience };
-    },
   });
 
   const { data: jobs, isLoading, error: jobsError } = useQuery<Job[]>({
     queryKey: ['jobs-swipe', user?.id],
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!supabase,
     queryFn: async () => {
+      if (!supabase) throw new Error("Supabase not initialized");
+      
       // Get already swiped job IDs
       const { data: swipes, error: swipesError } = await supabase
         .from('swipes')
@@ -104,8 +89,7 @@ export default function SwipePage() {
   const swipeMutation = useMutation({
     mutationFn: async ({ jobId, action }: { jobId: string; action: string }) => {
       // Use backend API with limit enforcement
-      const response = await apiRequest("/api/swipe", "POST", {
-        userId: user!.id,
+      const response = await apiRequest("POST", "/api/swipe", {
         jobId,
         action,
       });
@@ -163,13 +147,44 @@ export default function SwipePage() {
 
   const handleApply = async () => {
     if (!currentJob) return;
-    // Show application template dialog instead of immediately applying
+    // Reset state and show dialog
+    setCoverLetter("");
+    setApplicationData(null);
     setShowApplicationDialog(true);
+  };
+
+  const handleGenerateApplicationData = async () => {
+    if (!currentJob || !userProfile) return;
+    
+    setIsGenerating(true);
+    try {
+      const response = await apiRequest("POST", "/api/generate-application-data", {
+        jobId: currentJob.id,
+      });
+      const data = await response.json();
+      
+      setCoverLetter(data.coverLetter);
+      setApplicationData({
+        fullName: userProfile.name || "",
+        email: user?.email || "",
+        phone: userProfile.phone || "",
+        location: userProfile.location || "",
+        whyInterested: data.whyInterested || "",
+        keyQualifications: data.keyQualifications || [],
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Generation failed",
+        description: error.message || "Failed to generate application materials",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleConfirmApplication = async () => {
     if (!currentJob) return;
-    setIsProcessingApplication(true);
     try {
       await swipeMutation.mutateAsync({ jobId: currentJob.id, action: 'apply' });
       toast({
@@ -184,8 +199,6 @@ export default function SwipePage() {
         title: "Error",
         description: error.message,
       });
-    } finally {
-      setIsProcessingApplication(false);
     }
   };
 
@@ -300,33 +313,20 @@ export default function SwipePage() {
         {jobs && jobs.length > 0 ? `${currentIndex + 1} of ${jobs.length} jobs` : 'No jobs available'}
       </div>
 
-      {/* Application Template Dialog */}
-      <ApplicationTemplateDialog
-        open={showApplicationDialog}
-        onOpenChange={setShowApplicationDialog}
-        userProfile={userProfile ? {
-          name: userProfile.name,
-          email: userProfile.email,
-          location: userProfile.location,
-          skills: userProfile.skills,
-          languages: userProfile.languages,
-          nqfLevel: userProfile.nqf_level,
-          experience: userProfile.experience,
-        } : null}
-        job={currentJob ? {
-          title: currentJob.title,
-          company: currentJob.company,
-          location: currentJob.location,
-          salary: currentJob.salary,
-          description: currentJob.description,
-          skills: currentJob.skills,
-          sector: currentJob.sector ?? undefined,
-          nqfLevel: currentJob.nqfLevel ?? undefined,
-          workType: currentJob.workType ?? undefined,
-        } : null}
-        onConfirm={handleConfirmApplication}
-        isProcessing={isProcessingApplication}
-      />
+      {/* Assisted Apply Modal */}
+      {currentJob && userProfile && (
+        <AssistedApplyModal
+          open={showApplicationDialog}
+          onClose={() => setShowApplicationDialog(false)}
+          job={currentJob}
+          user={userProfile}
+          coverLetter={coverLetter}
+          applicationData={applicationData}
+          isGenerating={isGenerating}
+          onGenerate={handleGenerateApplicationData}
+          onConfirmApply={handleConfirmApplication}
+        />
+      )}
     </div>
   );
 }
