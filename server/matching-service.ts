@@ -49,7 +49,8 @@ export function checkExperienceMatch(
   userExperience: string | null,
   jobExperience: string | null
 ): boolean {
-  if (!jobExperience || !userExperience) return true; // No requirement = match
+  if (!jobExperience) return true; // No job requirement = match
+  if (!userExperience) return false; // Job has requirement but user has no experience = no match
 
   const experienceLevels = ['entry', 'junior', 'mid', 'senior', 'lead', 'principal'];
   
@@ -60,8 +61,14 @@ export function checkExperienceMatch(
     jobExperience.toLowerCase().includes(level)
   );
 
-  // Match if user level >= job level (or either not found)
-  return userLevel === -1 || jobLevel === -1 || userLevel >= jobLevel;
+  // If job level not found in our list, be lenient and match
+  if (jobLevel === -1) return true;
+  
+  // If user level not found but job level is specified, no match
+  if (userLevel === -1) return false;
+  
+  // Match if user level >= job level
+  return userLevel >= jobLevel;
 }
 
 /**
@@ -150,13 +157,12 @@ export function calculateJobMatchScore(user: User, job: Job): MatchScore {
   );
 
   // Calculate weighted final score
-  // Skills: 55%, Experience: 15%, Salary: 10%, Location: 10%, NQF: 10%
-  let finalScore = skillMatch.score * 0.55; // Skills are 55% of score
+  // Skills: 60%, Experience: 15%, Salary: 15%, Location: 10%
+  let finalScore = skillMatch.score * 0.60; // Skills are 60% of score
 
   if (experienceMatch) finalScore += 15;
-  if (salaryMatch) finalScore += 10;
+  if (salaryMatch) finalScore += 15;
   if (locationMatch) finalScore += 10;
-  if (nqfMatch) finalScore += 10;
 
   return {
     jobId: job.id,

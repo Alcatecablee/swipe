@@ -3,7 +3,7 @@ import { generateCoverLetter, parseResumeText } from "./ai-service";
 import { z } from "zod";
 import { db } from "./db";
 import { users, jobs, applications, userExperience, swipes, profileViews, interviewSchedule, userAnalytics } from "@shared/schema";
-import { eq, and, not, inArray, desc } from "drizzle-orm";
+import { eq, and, not, inArray, desc, sql } from "drizzle-orm";
 import { rankJobsByMatch } from "./matching-service";
 import Stripe from "stripe";
 import { initializeStorageBucket } from "./supabase-admin";
@@ -146,7 +146,7 @@ async function checkAndUpdateSwipeLimit(userId: string): Promise<{ allowed: bool
       })
       .where(eq(users.id, userId));
     
-    return { allowed: true, remaining: (user.dailySwipeLimit || 50) - 1 };
+    return { allowed: true, remaining: (user.dailySwipeLimit || 50) };
   }
 
   const swipesUsed = user.swipesUsedToday || 0;
@@ -159,12 +159,12 @@ async function checkAndUpdateSwipeLimit(userId: string): Promise<{ allowed: bool
   return { allowed: true, remaining: swipeLimit - swipesUsed };
 }
 
-// Helper function to increment swipe count
+// Helper function to increment swipe count (atomic operation to prevent race conditions)
 async function incrementSwipeCount(userId: string): Promise<void> {
   await db
     .update(users)
     .set({
-      swipesUsedToday: (await db.select().from(users).where(eq(users.id, userId)).limit(1))[0].swipesUsedToday! + 1
+      swipesUsedToday: sql`COALESCE(${users.swipesUsedToday}, 0) + 1`
     })
     .where(eq(users.id, userId));
 }
@@ -620,7 +620,13 @@ router.post("/api/swipe", async (req: Request, res: Response) => {
 
 // Generate referral code
 function generateReferralCode(userId: string): string {
-  return `SJ${userId.substring(0, 6).toUpperCase()}`;
+  // Generate random 6-character alphanumeric code (format: SJ3A7B9C)
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude similar chars (0,O,1,I)
+  let code = 'SJ';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
 }
 
 // Apply referral code
