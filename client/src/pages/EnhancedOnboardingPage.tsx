@@ -208,7 +208,7 @@ export default function EnhancedOnboardingPage() {
 
       <Card className="border-2">
         <CardHeader className="text-center space-y-4 pb-8">
-          <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-primary to-green-600 flex items-center justify-center">
+          <div className="mx-auto w-20 h-20 rounded-full bg-primary flex items-center justify-center">
             <Rocket className="h-10 w-10 text-white" />
           </div>
           <CardTitle className="text-4xl">Welcome to SwipeJob!</CardTitle>
@@ -252,7 +252,7 @@ export default function EnhancedOnboardingPage() {
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
               onClick={() => setStep("resume")} 
-              className="flex-1 h-14 text-lg bg-gradient-to-r from-primary to-green-600"
+              className="flex-1 h-14 text-lg"
               size="lg"
             >
               <Sparkles className="mr-2 w-5 h-5" />
@@ -459,7 +459,7 @@ export default function EnhancedOnboardingPage() {
             </Button>
             <Button
               onClick={() => setStep("preferences")}
-              className="flex-1 h-12 bg-gradient-to-r from-primary to-green-600"
+              className="flex-1 h-12"
             >
               Continue
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -549,7 +549,7 @@ export default function EnhancedOnboardingPage() {
             </Button>
             <Button
               onClick={handleCompleteOnboarding}
-              className="flex-1 h-14 text-lg bg-gradient-to-r from-primary to-green-600"
+              className="flex-1 h-14 text-lg"
               disabled={updateProfileMutation.isPending}
             >
               {updateProfileMutation.isPending ? "Saving..." : "Complete Setup"}
@@ -565,7 +565,7 @@ export default function EnhancedOnboardingPage() {
     <div className="max-w-3xl mx-auto space-y-8">
       <Card className="border-2 text-center">
         <CardHeader className="space-y-6 pb-8">
-          <div className="mx-auto w-24 h-24 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+          <div className="mx-auto w-24 h-24 rounded-full bg-green-600 flex items-center justify-center">
             <Check className="h-12 w-12 text-white" />
           </div>
           <CardTitle className="text-4xl">You're All Set!</CardTitle>
@@ -597,7 +597,7 @@ export default function EnhancedOnboardingPage() {
             <Button
               onClick={() => setLocation("/swipe")}
               size="lg"
-              className="w-full h-16 text-xl bg-gradient-to-r from-primary to-green-600"
+              className="w-full h-16 text-xl"
             >
               <Zap className="mr-2 w-6 h-6" />
               Start Swiping Jobs
@@ -633,7 +633,7 @@ export default function EnhancedOnboardingPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {step === "welcome" && renderWelcomeStep()}
         {step === "resume" && renderResumeStep()}
