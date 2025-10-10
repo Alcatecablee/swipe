@@ -1,9 +1,4 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/public",
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" }
-  ]
+  "outputDirectory": "dist/public"
 }
