@@ -14,6 +14,7 @@ import DashboardPage from "@/pages/DashboardPage";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
 import OnboardingPage from "@/pages/OnboardingPage";
+import ExtensionSyncPage from "@/pages/ExtensionSyncPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -44,6 +45,11 @@ function Router() {
       <Route path="/dashboard">
         <ProtectedRoute>
           <DashboardPage />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/extension-sync">
+        <ProtectedRoute>
+          <ExtensionSyncPage />
         </ProtectedRoute>
       </Route>
       <Route path="/" component={LandingPage} />

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwipeJob Auto-Fill</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 360px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #1f2937;
+    }
+    
+    .header {
+      background: white;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 4px;
+    }
+    
+    .tagline {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    
+    .content {
+      background: white;
+      padding: 20px;
+    }
+    
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: #d1fae5;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .status-icon {
+      font-size: 24px;
+    }
+    
+    .status-text {
+      flex: 1;
+      font-size: 14px;
+      color: #065f46;
+      font-weight: 500;
+    }
+    
+    .status--synced {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status--not-synced {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      text-align: center;
+      padding: 16px 8px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .button {
+      width: 100%;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 10px;
+    }
+    
+    .button-primary {
+      background: #10b981;
+      color: white;
+    }
+    
+    .button-primary:hover {
+      background: #059669;
+    }
+    
+    .button-secondary {
+      background: white;
+      color: #10b981;
+      border: 2px solid #10b981;
+    }
+    
+    .button-secondary:hover {
+      background: #d1fae5;
+    }
+    
+    .button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .info-box {
+      background: #f0f9ff;
+      border-left: 4px solid #3b82f6;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #1e40af;
+      margin-top: 20px;
+    }
+    
+    .footer {
+      background: white;
+      padding: 12px 20px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+      font-size: 11px;
+      color: #6b7280;
+    }
+    
+    .footer a {
+      color: #10b981;
+      text-decoration: none;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.6s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">SwipeJob</div>
+    <div class="tagline">Auto-Fill Assistant</div>
+  </div>
+  
+  <div class="content">
+    <div id="status" class="status status--not-synced">
+      <div class="status-icon">⚠️</div>
+      <div class="status-text">Not synced. Click "Sync Profile" below.</div>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-applications">0</div>
+        <div class="stat-label">Applications</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-fields">0</div>
+        <div class="stat-label">Fields Filled</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-time">0</div>
+        <div class="stat-label">Min Saved</div>
+      </div>
+    </div>
+    
+    <button id="sync-button" class="button button-primary">
+      Sync Profile from SwipeJob
+    </button>
+    
+    <button id="fill-button" class="button button-secondary" disabled>
+      Fill Forms on This Page
+    </button>
+    
+    <div class="info-box">
+      <strong>How it works:</strong><br>
+      1. Sync your profile once<br>
+      2. Visit any job application page<br>
+      3. Forms auto-fill automatically
+    </div>
+  </div>
+  
+  <div class="footer">
+    <a href="https://swipejob.co.za" target="_blank">SwipeJob.co.za</a> • 
+    <a href="#" id="help-link">Help</a>
+  </div>
+  
+  <script src="scripts/popup.js"></script>
+</body>
+</html>
