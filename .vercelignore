@@ -1,11 +1,5 @@
-node_modules
-.git
+# Only ignore files we truly don't need
 .env
 .env.local
 *.log
-client/src
-server
-shared
-vite.config.ts
-drizzle.config.ts
-tsconfig.json
+.DS_Store
