@@ -104,8 +104,17 @@ export function MarketingHeader({ className }: { className?: string }) {
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs">
               <SheetHeader>
-                <SheetTitle className="text-left text-lg font-semibold text-primary">
-                  Workr South Africa
+                <SheetTitle className="text-left flex items-center gap-2">
+                  <img 
+                    src="/logo-white.png" 
+                    alt="Workr" 
+                    className="h-8 w-auto dark:block hidden"
+                  />
+                  <img 
+                    src="/logo-dark.png" 
+                    alt="Workr" 
+                    className="h-8 w-auto dark:hidden block"
+                  />
                 </SheetTitle>
               </SheetHeader>
               <div className="mt-6 flex flex-col gap-6">
