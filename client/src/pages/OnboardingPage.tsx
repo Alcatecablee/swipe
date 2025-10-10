@@ -27,7 +27,7 @@ interface ParsedResume {
 
 export default function OnboardingPage() {
   const [, setLocation] = useLocation();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { toast } = useToast();
   const [step, setStep] = useState<OnboardingStep>("welcome");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -48,8 +48,15 @@ export default function OnboardingPage() {
       formData.append('resume', file);
       formData.append('userId', user?.id || '');
 
+      // Get auth token from session
+      const headers: HeadersInit = {};
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
       const response = await fetch('/api/upload-resume', {
         method: 'POST',
+        headers,
         body: formData,
       });
 
@@ -72,10 +79,12 @@ export default function OnboardingPage() {
       });
       setStep("preview");
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      console.error("Upload error details:", error);
+      const errorMessage = error?.message || error?.error_description || "Failed to process resume. Please try again.";
       toast({
         title: "Upload failed",
-        description: error.message || "Failed to process resume. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -83,9 +92,15 @@ export default function OnboardingPage() {
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Get auth token from session
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
       const response = await fetch('/api/profile', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(data),
       });
 
@@ -151,6 +166,15 @@ export default function OnboardingPage() {
       toast({
         title: "File too large",
         description: "Please upload a file smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user || !session) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to upload your resume.",
         variant: "destructive",
       });
       return;

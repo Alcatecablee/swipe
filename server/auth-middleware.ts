@@ -1,5 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 import { createClient } from '@supabase/supabase-js';
+import { db } from './db';
+import { users } from '@shared/schema';
+import { eq } from 'drizzle-orm';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
@@ -45,6 +48,24 @@ export async function authenticateUser(
       });
     }
     
+    // Ensure user exists in local database
+    try {
+      const existingUser = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+      
+      if (existingUser.length === 0) {
+        // Create user in local database
+        await db.insert(users).values({
+          id: user.id,
+          email: user.email!,
+          name: user.user_metadata?.name || user.user_metadata?.full_name || null,
+        });
+        console.log(`Created new user in local database: ${user.id}`);
+      }
+    } catch (dbError: any) {
+      console.error("Error ensuring user exists in database:", dbError);
+      // Continue even if user creation fails - they may already exist
+    }
+    
     // Attach authenticated user to request
     (req as any).user = { 
       id: user.id,
@@ -79,6 +100,22 @@ export async function optionalAuth(
       const { data: { user } } = await supabase.auth.getUser(token);
       
       if (user) {
+        // Ensure user exists in local database
+        try {
+          const existingUser = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+          
+          if (existingUser.length === 0) {
+            await db.insert(users).values({
+              id: user.id,
+              email: user.email!,
+              name: user.user_metadata?.name || user.user_metadata?.full_name || null,
+            });
+            console.log(`Created new user in local database: ${user.id}`);
+          }
+        } catch (dbError) {
+          console.error("Error ensuring user exists in database:", dbError);
+        }
+        
         (req as any).user = { 
           id: user.id,
           email: user.email,
