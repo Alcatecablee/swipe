@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Menu, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Sheet,
   SheetContent,
@@ -121,6 +122,10 @@ export function MarketingHeader({ className }: { className?: string }) {
                   ))}
                 </div>
                 <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between border-b pb-3">
+                    <span className="text-sm font-medium">Theme</span>
+                    <ThemeToggle />
+                  </div>
                   <Button
                     variant="ghost"
                     onClick={() => handleNavigate("/login")}

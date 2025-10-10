@@ -133,19 +133,22 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  --background: 222 47% 11%;
+  /* Dark slate background - rgb(15, 23, 41) */
+  --background: 219 45% 11%;
 
   --foreground: 0 0% 98%;
 
-  --border: 222 40% 18%;
+  /* Border - rgb(48, 62, 84) */
+  --border: 219 27% 26%;
 
-  --card: 217 33% 17%;
+  /* Card slightly lighter than background */
+  --card: 219 40% 15%;
 
   --card-foreground: 0 0% 98%;
 
-  --card-border: 217 30% 22%;
+  --card-border: 219 30% 20%;
 
-  --sidebar: 222 44% 14%;
+  --sidebar: 219 45% 11%;
 
   --sidebar-foreground: 0 0% 98%;
 
@@ -187,13 +190,14 @@
 
   --destructive-foreground: 0 10% 98%;
 
-  --input: 217 30% 35%;
-  --ring: 142 71% 55%;
-  --chart-1: 142 71% 65%;
-  --chart-2: 221 83% 70%;
-  --chart-3: 24 95% 60%;
-  --chart-4: 38 92% 60%;
-  --chart-5: 271 70% 65%;
+  --input: 219 25% 30%;
+  --ring: 189 95% 45%;
+  /* Charts with cyan theme */
+  --chart-1: 189 95% 45%;
+  --chart-2: 221 83% 65%;
+  --chart-3: 24 95% 58%;
+  --chart-4: 38 92% 55%;
+  --chart-5: 271 70% 60%;
 
   --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.3);
   --shadow-xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.4);
