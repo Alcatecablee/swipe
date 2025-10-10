@@ -17,7 +17,7 @@ import {
   Mail,
   MousePointer2,
 } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { RecentActivityTimeline } from "@/components/dashboard/RecentActivityTimeline";
 import { BadgeShowcase } from "@/components/dashboard/BadgeShowcase";
 import { ReferralWidget } from "@/components/dashboard/ReferralWidget";

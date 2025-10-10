@@ -23,7 +23,7 @@ export default function SignupPage() {
       await signUp(email, password, name);
       toast({
         title: "Account created!",
-        description: "Welcome to SwipeJob. Let's find you a great opportunity!",
+        description: "Welcome to Workr. Let's find you a great opportunity!",
       });
       setLocation("/app");
     } catch (error: any) {
@@ -42,7 +42,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl text-center">
-            <span className="text-primary">SwipeJob</span>
+            <span className="text-primary">Workr</span>
           </CardTitle>
           <CardDescription className="text-center">
             Create an account to start your job search journey
