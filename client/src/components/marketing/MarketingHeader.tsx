@@ -56,11 +56,19 @@ export function MarketingHeader({ className }: { className?: string }) {
       )}
     >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-primary">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 font-bold text-primary">
-            W
-          </span>
-          <span className="hidden sm:inline-flex">Workr South Africa</span>
+        <Link href="/" className="flex items-center gap-2">
+          {/* White logo for dark theme */}
+          <img 
+            src="/logo-white.png" 
+            alt="Workr" 
+            className="h-10 w-auto dark:block hidden"
+          />
+          {/* Dark logo for light theme */}
+          <img 
+            src="/logo-dark.png" 
+            alt="Workr" 
+            className="h-10 w-auto dark:hidden block"
+          />
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
@@ -77,6 +85,7 @@ export function MarketingHeader({ className }: { className?: string }) {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle />
           <Button
             variant="ghost"
             size="sm"
