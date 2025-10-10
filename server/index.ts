@@ -2,12 +2,14 @@ import express, { type Request, Response, NextFunction } from "express";
 import { createServer } from "http";
 import { setupVite, serveStatic, log } from "./vite";
 import routes from "./routes";
+import adminRoutes from "./admin-routes";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(routes);
+app.use(adminRoutes);
 
 app.use((req, res, next) => {
   const start = Date.now();
