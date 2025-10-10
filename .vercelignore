@@ -1,0 +1,11 @@
+node_modules
+.git
+.env
+.env.local
+*.log
+client/src
+server
+shared
+vite.config.ts
+drizzle.config.ts
+tsconfig.json
