@@ -211,7 +211,7 @@ export default function EnhancedOnboardingPage() {
           <div className="mx-auto w-20 h-20 rounded-full bg-primary flex items-center justify-center">
             <Rocket className="h-10 w-10 text-white" />
           </div>
-          <CardTitle className="text-4xl">Welcome to SwipeJob!</CardTitle>
+          <CardTitle className="text-4xl">Welcome to Workr!</CardTitle>
           <CardDescription className="text-lg">
             Let's build your profile in 2-5 minutes and start applying to jobs
           </CardDescription>
