@@ -41,7 +41,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl text-center">
-            <span className="text-primary">SwipeJob</span>
+            <span className="text-primary">Workr</span>
           </CardTitle>
           <CardDescription className="text-center">
             Sign in to your account to find your next opportunity
