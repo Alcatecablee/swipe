@@ -1731,7 +1731,7 @@ router.patch("/api/interviews/:interviewId", async (req: Request, res: Response)
 });
 
 // Get application statistics for dashboard
-router.get("/api/application-stats/:userId", async (req: Request, res: Response) => {
+router.get("/api/application-stats/:userId", authenticateUser, validateUserAccess, async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 

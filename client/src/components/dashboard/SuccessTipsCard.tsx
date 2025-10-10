@@ -66,7 +66,7 @@ export function SuccessTipsCard({
   const Icon = tip.icon;
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
+    <Card className="p-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
       <div className="flex items-start gap-4">
         <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
           <Icon className="w-5 h-5 text-white" />

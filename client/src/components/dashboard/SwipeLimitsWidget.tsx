@@ -45,7 +45,7 @@ export function SwipeLimitsWidget({ userId }: SwipeLimitsWidgetProps) {
 
         {isPremium ? (
           <div className="text-center py-4">
-            <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center">
+            <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-yellow-600 flex items-center justify-center">
               <Zap className="w-8 h-8 text-white" />
             </div>
             <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">Unlimited</p>
@@ -85,7 +85,7 @@ export function SwipeLimitsWidget({ userId }: SwipeLimitsWidgetProps) {
 
             <Button
               variant="default"
-              className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700"
+              className="w-full bg-yellow-600 hover:bg-yellow-700"
               onClick={() => setLocation('/premium')}
             >
               <Crown className="w-4 h-4 mr-2" />

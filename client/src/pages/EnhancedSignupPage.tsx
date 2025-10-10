@@ -40,7 +40,7 @@ export default function EnhancedSignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
         {/* Left Side - Value Proposition */}
         <div className="hidden lg:block space-y-8">
@@ -124,7 +124,7 @@ export default function EnhancedSignupPage() {
         <Card className="border-2">
           <CardHeader className="space-y-4">
             <div className="flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-green-600 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
             </div>
@@ -178,7 +178,7 @@ export default function EnhancedSignupPage() {
 
               <Button
                 type="submit"
-                className="w-full h-12 text-lg bg-gradient-to-r from-primary to-green-600 hover:from-primary/90 hover:to-green-600/90"
+                className="w-full h-12 text-lg"
                 disabled={loading}
               >
                 {loading ? "Creating your account..." : "Create Free Account"}

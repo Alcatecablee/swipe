@@ -114,7 +114,6 @@ export default function EnhancedDashboardPage() {
             </div>
             <Button
               onClick={() => setLocation("/app")}
-              className="bg-gradient-to-r from-primary to-green-600"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Find Jobs
@@ -123,7 +122,7 @@ export default function EnhancedDashboardPage() {
 
           {/* Profile Completion - Prominent */}
           {completionScore < 100 && (
-            <Card className="p-6 border-primary/50 bg-gradient-to-r from-primary/5 to-green-500/5">
+            <Card className="p-6 border-primary/50 bg-primary/5">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <Target className="w-8 h-8 text-primary" />

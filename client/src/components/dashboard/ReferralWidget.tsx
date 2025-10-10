@@ -35,7 +35,7 @@ export function ReferralWidget({ userId }: ReferralWidgetProps) {
   };
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10">
+    <Card className="p-6 bg-primary/5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Gift className="w-5 h-5" />
@@ -75,7 +75,7 @@ export function ReferralWidget({ userId }: ReferralWidgetProps) {
         {bonusSwipes > 0 && (
           <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
             <p className="text-sm font-medium text-green-800 dark:text-green-200">
-              You've earned +{bonusSwipes} bonus swipes! 🎉
+              You've earned +{bonusSwipes} bonus swipes!
             </p>
           </div>
         )}

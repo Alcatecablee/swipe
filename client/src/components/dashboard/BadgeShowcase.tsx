@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Award, Lock } from 'lucide-react';
+import { Award, Lock, Trophy, Star, Target, Zap } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 interface BadgeShowcaseProps {
@@ -54,10 +54,16 @@ export function BadgeShowcase({ userId }: BadgeShowcaseProps) {
           {displayBadges.map((badge: any) => (
             <div
               key={badge.id}
-              className="p-3 rounded-lg bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border border-yellow-200 dark:border-yellow-800 text-center group hover:scale-105 transition-transform cursor-pointer"
+              className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-center group hover:border-yellow-400 dark:hover:border-yellow-600 transition-colors cursor-pointer"
               title={badge.description}
             >
-              <div className="text-2xl mb-1">{badge.iconName === 'award' ? '🏆' : '⭐'}</div>
+              <div className="w-10 h-10 mx-auto mb-2 flex items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-800/40">
+                {badge.iconName === 'trophy' && <Trophy className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />}
+                {badge.iconName === 'star' && <Star className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />}
+                {badge.iconName === 'target' && <Target className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />}
+                {badge.iconName === 'zap' && <Zap className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />}
+                {!badge.iconName && <Award className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />}
+              </div>
               <p className="text-xs font-medium text-yellow-900 dark:text-yellow-100">
                 {badge.title}
               </p>

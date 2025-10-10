@@ -10,10 +10,10 @@ import LandingPage from "@/pages/LandingPage";
 import SwipePage from "@/pages/SwipePage";
 import ApplicationsPage from "@/pages/ApplicationsPage";
 import ProfilePage from "@/pages/ProfilePage";
-import DashboardPage from "@/pages/DashboardPage";
+import DashboardPage from "@/pages/EnhancedDashboardPage";
 import LoginPage from "@/pages/LoginPage";
-import SignupPage from "@/pages/SignupPage";
-import OnboardingPage from "@/pages/OnboardingPage";
+import SignupPage from "@/pages/EnhancedSignupPage";
+import OnboardingPage from "@/pages/EnhancedOnboardingPage";
 import ExtensionSyncPage from "@/pages/ExtensionSyncPage";
 import NotFound from "@/pages/not-found";
 
