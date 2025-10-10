@@ -6,7 +6,7 @@ import { queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import UserProfile from "@/components/UserProfile";
-import ThemeToggle from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileCompletionWidget } from "@/components/ProfileCompletionWidget";
 import { useToast } from "@/hooks/use-toast";
 

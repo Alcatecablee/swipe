@@ -58,9 +58,9 @@ export function MarketingHeader({ className }: { className?: string }) {
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-primary">
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 font-bold text-primary">
-            SJ
+            W
           </span>
-          <span className="hidden sm:inline-flex">SwipeJob South Africa</span>
+          <span className="hidden sm:inline-flex">Workr South Africa</span>
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
@@ -105,7 +105,7 @@ export function MarketingHeader({ className }: { className?: string }) {
             <SheetContent side="right" className="w-full max-w-xs">
               <SheetHeader>
                 <SheetTitle className="text-left text-lg font-semibold text-primary">
-                  SwipeJob South Africa
+                  Workr South Africa
                 </SheetTitle>
               </SheetHeader>
               <div className="mt-6 flex flex-col gap-6">

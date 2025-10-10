@@ -82,7 +82,7 @@ export default function ExtensionSyncPage() {
           alert('Profile synced with extension! You can now close this tab.');
         }, 500);
       } else {
-        alert('Extension not detected. Please install the SwipeJob extension first.');
+        alert('Extension not detected. Please install the Workr extension first.');
       }
     } catch (error) {
       console.error('Error syncing with extension:', error);
@@ -114,7 +114,7 @@ export default function ExtensionSyncPage() {
             Sync with Browser Extension
           </h1>
           <p className="text-lg text-gray-600">
-            Connect your SwipeJob profile to the Auto-Fill extension
+            Connect your Workr profile to the Auto-Fill extension
           </p>
         </div>
 
@@ -136,7 +136,7 @@ export default function ExtensionSyncPage() {
               </h3>
               <p className="text-sm text-gray-600">
                 {extensionInstalled 
-                  ? 'SwipeJob Auto-Fill extension is installed'
+                  ? 'Workr Auto-Fill extension is installed'
                   : 'Please install the extension first'
                 }
               </p>
@@ -288,7 +288,7 @@ export default function ExtensionSyncPage() {
           <div className="space-y-4 text-sm">
             <div className="flex gap-3">
               <span className="font-bold text-green-600">Step 1:</span>
-              <p>Install the SwipeJob Auto-Fill browser extension (see install guide)</p>
+              <p>Install the Workr Auto-Fill browser extension (see install guide)</p>
             </div>
             
             <div className="flex gap-3">

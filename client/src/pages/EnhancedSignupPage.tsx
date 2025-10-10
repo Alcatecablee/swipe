@@ -23,7 +23,7 @@ export default function EnhancedSignupPage() {
     try {
       await signUp(email, password, name);
       toast({
-        title: "Welcome to SwipeJob!",
+        title: "Welcome to Workr!",
         description: "Let's set up your profile in 2 minutes",
       });
       // Redirect to onboarding instead of /app
@@ -128,7 +128,7 @@ export default function EnhancedSignupPage() {
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
             </div>
-            <CardTitle className="text-3xl text-center">Join SwipeJob</CardTitle>
+            <CardTitle className="text-3xl text-center">Join Workr</CardTitle>
             <CardDescription className="text-center text-base">
               Create your free account and start applying in minutes
             </CardDescription>

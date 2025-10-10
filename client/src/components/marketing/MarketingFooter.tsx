@@ -14,22 +14,22 @@ const footerLinks = [
 const socials = [
   {
     label: "Email",
-    href: "mailto:hello@swipejob.co.za",
+    href: "mailto:hello@workr.co.za",
     icon: Mail,
   },
   {
     label: "LinkedIn",
-    href: "https://www.linkedin.com/company/swipejob-sa",
+    href: "https://www.linkedin.com/company/workr-sa",
     icon: Linkedin,
   },
   {
     label: "Instagram",
-    href: "https://www.instagram.com/swipejob_sa",
+    href: "https://www.instagram.com/workr_sa",
     icon: Instagram,
   },
   {
     label: "X (Twitter)",
-    href: "https://x.com/swipejob_sa",
+    href: "https://x.com/workr_sa",
     icon: Twitter,
   },
 ];
@@ -40,7 +40,7 @@ export function MarketingFooter() {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6">
         <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
-            <p className="text-lg font-semibold text-primary">SwipeJob South Africa</p>
+            <p className="text-lg font-semibold text-primary">Workr South Africa</p>
             <p className="max-w-xl text-sm text-muted-foreground">
               Tinder-style job matching built for South Africa’s next generation of builders,
               marketers, and makers. Swipe into paid opportunities from verified employers
@@ -82,7 +82,7 @@ export function MarketingFooter() {
           </div>
         </div>
         <div className="flex flex-col gap-2 border-t border-border/40 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} SwipeJob South Africa. Made for Mzansi talent.</p>
+          <p>© {new Date().getFullYear()} Workr South Africa. Made for Mzansi talent.</p>
           <p>Built in partnership with local incubators and youth employment initiatives.</p>
         </div>
       </div>

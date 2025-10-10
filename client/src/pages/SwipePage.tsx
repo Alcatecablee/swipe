@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import JobCard from "@/components/JobCard";
 import FilterDrawer from "@/components/FilterDrawer";
-import ThemeToggle from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import AssistedApplyModal from "@/components/AssistedApplyModal";
 import { User, BarChart3, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -18,7 +18,7 @@ import {
   Clock,
   XCircle,
 } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { InterviewScheduler } from "@/components/InterviewScheduler";
 import type { UserAnalytics } from "@shared/schema";
 

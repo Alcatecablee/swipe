@@ -12,7 +12,7 @@ import {
   X
 } from 'lucide-react';
 import { useState } from 'react';
-import ThemeToggle from '@/components/ThemeToggle';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface AdminLayoutProps {
   children: React.ReactNode;

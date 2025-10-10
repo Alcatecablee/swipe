@@ -29,7 +29,7 @@ const stats = [
     value: "12 500+",
   },
   {
-    label: "Interviews booked through SwipeJob each month",
+    label: "Interviews booked through Workr each month",
     value: "1 800",
   },
   {
@@ -75,7 +75,7 @@ const safeguards = [
 const testimonials = [
   {
     quote:
-      "I matched with a product design internship in 48 hours. SwipeJob felt like it was built for my journey—fast, inclusive, and unapologetically South African.",
+      "I matched with a product design internship in 48 hours. Workr felt like it was built for my journey—fast, inclusive, and unapologetically South African.",
     name: "Ayanda Mahlangu",
     title: "Wits graduate turned UX intern",
   },
@@ -131,7 +131,7 @@ export default function LandingPage() {
                 Swipe right on your next opportunity in Mzansi.
               </h1>
               <p className="text-lg text-muted-foreground sm:text-xl">
-                SwipeJob makes hiring and job hunting feel human. Discover vetted companies, pay transparency, and support designed for local graduates, switchers, and hustlers.
+                Workr makes hiring and job hunting feel human. Discover vetted companies, pay transparency, and support designed for local graduates, switchers, and hustlers.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Button className="h-12 gap-2 px-6 text-base" onClick={handlePrimaryCta}>
@@ -164,7 +164,7 @@ export default function LandingPage() {
             <div className="space-y-3">
               <h2 className="text-3xl font-semibold sm:text-4xl">Where our talent lands interviews</h2>
               <p className="max-w-3xl text-base text-muted-foreground">
-                From Sandton fintech giants to Cape Town creatives, SwipeJob candidates show up where innovation lives.
+                From Sandton fintech giants to Cape Town creatives, Workr candidates show up where innovation lives.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -232,7 +232,7 @@ export default function LandingPage() {
               <div className="space-y-4">
                 <h2 className="text-3xl font-semibold sm:text-4xl">We protect your hustle</h2>
                 <p className="text-base text-muted-foreground">
-                  South African candidates navigate scams, ghosting, and wage gaps daily. SwipeJob screens every opportunity, verifies salaries, and equips you to negotiate with confidence.
+                  South African candidates navigate scams, ghosting, and wage gaps daily. Workr screens every opportunity, verifies salaries, and equips you to negotiate with confidence.
                 </p>
               </div>
               <div className="grid gap-4">
@@ -315,7 +315,7 @@ export default function LandingPage() {
               Recruit or get hired from anywhere in South Africa
             </h2>
             <p className="max-w-2xl text-base text-primary/80">
-              Download the SwipeJob beta for Android, or join the waitlist for iOS. Desktop hiring dashboards available for HR teams today.
+              Download the Workr beta for Android, or join the waitlist for iOS. Desktop hiring dashboards available for HR teams today.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild className="h-12 gap-2 px-6 text-base">
