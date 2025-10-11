@@ -2,7 +2,7 @@ import { Router, type Request, Response } from "express";
 import { generateCoverLetter, parseResumeText } from "./ai-service";
 import { z } from "zod";
 import { db } from "./db";
-import { users, jobs, applications, userExperience, swipes, profileViews, interviewSchedule, userAnalytics } from "@shared/schema";
+import { users, jobs, applications, userExperience, swipes, profileViews, interviewSchedule, userAnalytics, type Job } from "@shared/schema";
 import { eq, and, not, inArray, desc, sql } from "drizzle-orm";
 import { rankJobsByMatch } from "./matching-service";
 import Stripe from "stripe";
