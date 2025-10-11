@@ -30,12 +30,11 @@ export async function getApplicationTimeline(userId: string): Promise<Applicatio
       id: applications.id,
       jobId: applications.jobId,
       status: applications.status,
-      createdAt: applications.createdAt,
-      updatedAt: applications.updatedAt,
+      appliedAt: applications.appliedAt,
     })
     .from(applications)
     .where(eq(applications.userId, userId))
-    .orderBy(desc(applications.createdAt));
+    .orderBy(desc(applications.appliedAt));
 
   const timeline: ApplicationTimeline[] = [];
 
@@ -48,8 +47,8 @@ export async function getApplicationTimeline(userId: string): Promise<Applicatio
 
     if (!job) continue;
 
-    const appliedDate = new Date(app.createdAt);
-    const lastUpdate = new Date(app.updatedAt || app.createdAt);
+    const appliedDate = new Date(app.appliedAt);
+    const lastUpdate = new Date(app.appliedAt);
     const daysElapsed = Math.floor((Date.now() - appliedDate.getTime()) / (1000 * 60 * 60 * 24));
 
     timeline.push({
@@ -73,8 +72,7 @@ export async function getSuccessMetrics(userId: string): Promise<SuccessMetrics>
       id: applications.id,
       jobId: applications.jobId,
       status: applications.status,
-      createdAt: applications.createdAt,
-      updatedAt: applications.updatedAt,
+      appliedAt: applications.appliedAt,
     })
     .from(applications)
     .where(eq(applications.userId, userId));
@@ -110,10 +108,10 @@ export async function getSuccessMetrics(userId: string): Promise<SuccessMetrics>
   // Calculate average response time
   const responseTimes: number[] = [];
   for (const app of userApplications) {
-    if (app.updatedAt && app.status && app.status !== 'pending' && app.status !== 'applied') {
-      const appliedDate = new Date(app.createdAt);
-      const responseDate = new Date(app.updatedAt);
-      const days = Math.floor((responseDate.getTime() - appliedDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (app.status && app.status !== 'pending' && app.status !== 'applied') {
+      const appliedDate = new Date(app.appliedAt);
+      const currentDate = new Date();
+      const days = Math.floor((currentDate.getTime() - appliedDate.getTime()) / (1000 * 60 * 60 * 24));
       if (days > 0) responseTimes.push(days);
     }
   }
@@ -202,7 +200,7 @@ function calculateWeeklyTrend(applications: any[]): Array<{ week: string; applic
     weeks[weekLabel] = { applications: 0, interviews: 0 };
 
     applications.forEach(app => {
-      const appDate = new Date(app.createdAt);
+      const appDate = new Date(app.appliedAt);
       if (appDate >= weekStart && appDate < new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000)) {
         weeks[weekLabel].applications++;
         if (app.status === 'interview' || app.status === 'accepted') {

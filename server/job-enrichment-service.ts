@@ -7,16 +7,16 @@ import { detectApplicationMethod, getJobApplicationEmail } from './email-service
  */
 
 interface EnrichedJob extends Job {
-  applicationEmail?: string;
-  applicationMethod?: string;
-  applicationUrl?: string;
+  applicationEmail?: string | null;
+  applicationMethod?: string | null;
+  applicationUrl?: string | null;
 }
 
 /**
  * Enrich a single job with application method detection
  */
 export function enrichJobWithApplicationData(job: Job): EnrichedJob {
-  const enriched = { ...job };
+  const enriched: EnrichedJob = { ...job };
   
   // Detect email from job data
   const email = getJobApplicationEmail(job);

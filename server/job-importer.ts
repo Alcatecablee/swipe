@@ -96,17 +96,16 @@ export async function importJobsFromCSV(csvContent: string): Promise<{
         : [];
 
       await db.insert(jobs).values({
-        id: sql`gen_random_uuid()`,
         title: row.title,
         company: row.company,
         location: row.location,
-        salary: row.salary,
+        salary: row.salary || 'Competitive',
         description: row.description,
         skills,
-        workType: row.workType,
-        sector: row.sector,
-        nqfLevel: row.nqfLevel,
-        applicationUrl: row.applicationUrl,
+        workType: row.workType || null,
+        sector: row.sector || null,
+        nqfLevel: row.nqfLevel || null,
+        applicationUrl: row.applicationUrl || null,
         isActive: true,
       });
 
